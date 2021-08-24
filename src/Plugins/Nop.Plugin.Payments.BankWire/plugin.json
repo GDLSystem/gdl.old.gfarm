@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Payment methods",
+  "FriendlyName": "Bank Wire",
+  "SystemName": "Payments.BankWire",
+  "Version": "1.0",
+  "SupportedVersions": [ "4.40" ],
+  "Author": "GDL Team",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Payments.BankWire.dll",
+  "Description": "This payment module allows you to enable BankWire option in your store"
+}
