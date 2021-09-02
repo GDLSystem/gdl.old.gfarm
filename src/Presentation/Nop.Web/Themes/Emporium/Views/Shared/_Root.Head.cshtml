@@ -84,6 +84,10 @@
     }
     @Html.NopInlineScripts(ResourceLocation.Head)
     <!--Powered by nopCommerce - https://www.nopCommerce.com-->
+    
+    <!--Load Gfarm Custom css-->
+    <link href="@Url.Content("~/gfarm/gfarm-custom-mobile.css")" rel="stylesheet">
+
 </head>
 <body class="@currentPageClass">
     @RenderBody()

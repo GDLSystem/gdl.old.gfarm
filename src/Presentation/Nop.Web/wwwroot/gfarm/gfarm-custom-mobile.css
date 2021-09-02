@@ -1,0 +1,313 @@
+﻿
+@media all and (max-width: 1025px) {
+ .nop-jcarousel.home-page-category-grid, .nop-jcarousel.home-page-category-grid .slick-dotted.slick-slider{
+    margin-bottom: 10px !important;
+  }
+  
+  .mobile-navigation.products-mobile-navigation {
+    display: none;
+  }
+  .master-wrapper-content{
+    padding: 10px;
+  }
+  .spc-header .title{
+    margin: 0 0 10px;
+    font-size: 16px;
+  }
+  .item-box .product-title, .item-box .title{
+    height: auto;
+  }
+  .spc-products{
+    margin: 0 0 10px;
+  }
+  
+}
+
+@media all and (max-width: 481px) {
+  /*General*/
+  .carousel-wrapper{
+    margin-top: 5px;
+  }
+  .small-products .nop-jcarousel .carousel-title{
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  .footer-block .title{
+    font-size: 12px;
+  }
+  .newsletter-email .newsletter-subscribe-text{
+    font-size: 12px;
+  }
+  .block .title{
+    padding: 5px 5px 5px 25px;
+  }
+  
+  .block .title:before{
+    left: 10px;
+  }
+  
+  .admin-header-links ~ .responsive-nav-wrapper-parent ~ .header{
+    margin-top: 80px;
+  }
+  .responsive-nav-wrapper{
+    padding: 2px 0;
+  }
+  .center-2, .side-2{
+    margin-bottom: 5px;
+  }
+  
+  .mobile-none-display{
+    display: none !important;
+  }
+  
+  .vendor-item .title a, .manufacturer-item .title a, .category-grid .item-box .title a{
+    letter-spacing: unset;
+  }
+  .spc-header .title{
+    font-size: 18px;
+  }
+  .product-rating-box{
+    display: none !important;
+  }
+  .item-box .prices{
+    margin-bottom: 5px;
+  }
+  .item-box .actual-price{
+    font-size: 14px;
+  }
+  .item-box .product-title, .item-box .title{
+    font-size: 12px;
+  }
+  .item-box .details{
+    padding: 0;
+  }
+  .item-box .buttons{
+    display: block;
+  }
+  .item-box .button-2{
+    font-size: 10px;
+  }
+  .item-box button{
+    height: 30px;
+  }
+  
+  /*Banner slider*/
+  .theme-home-banners{
+    margin-bottom: 10px;
+  }
+  
+  /*Homepage Sale products area*/
+  .sale-of-the-day-offer{
+    display: none !important;
+  }
+  .home-extend-products{
+    display: none;
+  }
+  
+  /*Footer*/
+  .footer{
+    background: #f3f3f3;
+  }
+  .footer-upper{
+    margin: 10px 0;
+  }
+  .footer-logo{
+    margin: 0 auto;
+    max-width: 50%;
+  }
+  .footer-middle .social-icons, .footer-middle .pay-options{
+    margin-top: 10px;
+  }
+  .footer-middle{
+    margin-bottom: 0;
+  }
+  .footer .newsletter-email{
+    max-width: 95%;
+  }
+  
+  /*Filter product control*/
+  .product-selectors{
+    margin-bottom: 5px;
+  }
+  .product-grid {
+    margin-bottom: 5px;
+  }
+  .product-selectors .filters-button{
+    height: 30px;
+    font-size: 12px;
+  }
+  .product-selectors select{
+    height: 30px;
+    font-size: 12px;
+  }
+  .home-page-category-grid, .sub-category-grid, .manufacturer-grid{
+    margin: 0 auto 10px;
+  }
+  .category-grid .item-box, .sub-category-grid .item-box{
+    width: 24%;
+  }
+  .category-grid .item-box:nth-child(2n+1),.sub-category-grid .item-box:nth-child(2n+1){
+    clear: none;
+  }
+  .sub-category-grid .item-box .title a{
+    padding: 5px;
+    font-size: 11px !important;
+  }
+  .category-page .page-title{
+    margin-bottom: 5px;
+  }
+  
+  /*Product Details*/
+  
+  /*.product-grid .item-box, .sub-category-grid .item-box{*/
+  /*  width: 31%;*/
+  /*}*/
+  /*.product-grid .item-box:nth-child(2n+1){*/
+  /*  margin: 0 0 2% 2%;*/
+  /*  clear: none;*/
+  /*}*/
+  
+  .mobile-name-holder{
+    margin-bottom: 5px;
+  }
+  .product-essential .gallery{
+    margin-bottom: 5px;
+  }
+  .overview{
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5px !important;
+  }
+  .attributes-wrapper{
+    order: 1 !important;
+    -webkit-order: 1 !important;
+    margin-bottom: 5px !important;
+  }
+  .product-social-buttons{
+    order: 2 !important;
+    -webkit-order: 2 !important;
+    margin-bottom: 5px !important;
+  }
+  .reviews-and-compare{
+    order: 3 !important;
+    -webkit-order: 3 !important;
+    margin-bottom: 5px !important;
+  }
+  .short-description{
+    order: 4 !important;
+    -webkit-order: 4 !important;
+    margin-bottom: 5px !important;
+  }
+  .additional-details{
+    order: 5 !important;
+    -webkit-order: 5 !important;
+    margin-bottom: 5px !important;
+  }
+
+  .overview .stock, .variant-overview .stock{
+    margin: 0;
+  }
+  .overview .delivery{
+    margin: 0;
+  }
+  .product-social-label
+  {
+    margin-bottom: 5px !important;
+  }
+  .product-reviews-overview{
+    margin-bottom: 5px !important;
+  }
+  .overview .compare-products{
+    margin-bottom: 5px !important;
+  }
+  .productTabs.ui-tabs .ui-tabs-panel{
+    padding: 5px 10px;
+  }
+  .overview .short-description, .full-description p{
+    line-height: 1.4 !important;
+    font-size: 12px !important;
+    margin: 0 0 5px 0 !important;
+  }
+  .productTabs.ui-tabs .ui-tabs-nav li{
+    display: inline-block;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border: 1px solid #97c300;
+    border-bottom: none;
+    margin-right: 5px;
+  }
+
+  .productTabs.ui-tabs .ui-tabs-nav li a{
+    display: inline-block;
+    padding: 2px 5px;
+    font-size: 12px;
+    letter-spacing: normal;
+    border-bottom: 2px solid transparent;
+    text-transform: none;
+    transition: all .1s ease;
+  }
+  .product-specs-box .data-table td{
+    padding: 5px !important;
+    font-size: 12px !important;
+  }
+  .ui-tabs .product-review-links{
+    font-size: 12px !important;
+  }
+  #review-form{
+    margin-bottom: 5px;
+  }
+  .ui-tabs .write-review{
+    margin-bottom: 5px;
+  }
+  .product-review-item{
+    padding: 5px;
+  }
+  .product-review-item .review-info .avatar{
+    display: none;
+  }
+  .product-review-item .review-info span{
+    line-height: 10px;
+  }
+  .product-review-item .review-item-head{
+    margin-bottom: 5px;
+  }
+  .product-review-helpfulness{
+    margin-top: 5px;
+  }
+  .product-review-item .review-text{
+    font-size: 12px !important;
+  }
+  .write-review .title, .comment-form-btn{
+    margin-bottom: 5px;
+  }
+  .write-review .title strong, .comment-form-btn strong{
+    height: 30px;
+    padding: 5px;
+    font-size: 12px;
+  }
+  .product-reviews-page .title strong::before, .comment-form-btn strong::before, .close-comment-form::before{
+    font-size: 12px;
+    margin-right: 5px;
+  }
+  .write-review .title strong, .comment-form-btn strong{
+    line-height: 20px;
+  }
+  #contact-us-tab {
+    font-size: 12px !important;
+  }
+  #contact-us-tab .inputs > label{
+    font-size: 12px !important;
+  }
+  #contact-us-tab .inputs{
+    margin-top: 10px;
+  }
+  #contact-us-tab .inputs textarea{
+    min-height: 100px !important;
+  }
+  #contact-us-tab .inputs input[type="text"], .inputs input[type="password"], .inputs input[type="email"], .inputs input[type="tel"], .inputs select, .inputs textarea
+  {
+    height: 25px;
+    padding: 0 5px;
+    font-size: 12px;
+  }
+}
