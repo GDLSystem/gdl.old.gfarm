@@ -127,15 +127,18 @@
                 @await Component.InvokeAsync("SocialButtons")
             </div>
             <div class="pay-options">
-                <h3 class="title">@T("SevenSpikes.Themes.Emporium.Common.PaymentOptions")</h3>
+                <!--<h3 class="title">@T("SevenSpikes.Themes.Emporium.Common.PaymentOptions")</h3>
                 <img src="@Url.Content("~/Themes/Emporium/Content/img/pay_icon1.png")" alt="" />
                 <img src="@Url.Content("~/Themes/Emporium/Content/img/pay_icon2.png")" alt="" />
                 <img src="@Url.Content("~/Themes/Emporium/Content/img/pay_icon3.png")" alt="" />
-                <img src="@Url.Content("~/Themes/Emporium/Content/img/pay_icon6.png")" alt="" />
+                <img src="@Url.Content("~/Themes/Emporium/Content/img/pay_icon6.png")" alt="" />-->
             </div>
         </div>
     </div>
     <div class="footer-lower">
+ 	<div class="footer-disclaimer">
+            @T("Content.CopyrightNotice", DateTime.Now.Year, Model.StoreName)
+        </div>
         @if (!removeCopyright)
         {
             <div class="footer-powered-by">
@@ -150,9 +153,7 @@
                 Designed by <a href="https://www.nop-templates.com/" target="_blank">Nop-Templates.com</a>
             </div>
         }
-        <div class="footer-disclaimer">
-            @T("Content.CopyrightNotice", DateTime.Now.Year, Model.StoreName)
-        </div>
+       
         @if (Model.DisplayTaxShippingInfoFooter)
         {
             var inclTax = await workContext.GetTaxDisplayTypeAsync() == TaxDisplayType.IncludingTax;
