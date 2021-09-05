@@ -95,6 +95,9 @@
   .theme-home-banners{
     margin-bottom: 10px;
   }
+  .theme-home-banners + .theme-home-banners{
+    margin-top: 5px;
+  }
   
   /*Homepage Sale products area*/
   .sale-of-the-day-offer{

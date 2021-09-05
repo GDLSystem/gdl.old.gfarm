@@ -64,7 +64,8 @@ namespace Nop.Services.Catalog
             string result;
             if (!string.IsNullOrEmpty(targetCurrency.CustomFormatting))
                 //custom formatting specified by a store owner
-                result = amount.ToString(targetCurrency.CustomFormatting);
+                //result = amount.ToString(targetCurrency.CustomFormatting);
+                result = string.Format(new CultureInfo("en-US"), targetCurrency.CustomFormatting, amount);
             else
             {
                 if (!string.IsNullOrEmpty(targetCurrency.DisplayLocale))
