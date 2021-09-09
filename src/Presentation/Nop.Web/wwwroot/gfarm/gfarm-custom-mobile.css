@@ -1,4 +1,8 @@
-﻿
+﻿/*Global*/
+image, img{
+  height: auto;
+}
+
 @media all and (max-width: 1025px) {
  .nop-jcarousel.home-page-category-grid, .nop-jcarousel.home-page-category-grid .slick-dotted.slick-slider{
     margin-bottom: 10px !important;
@@ -307,10 +311,10 @@
   #contact-us-tab .inputs textarea{
     min-height: 100px !important;
   }
-  #contact-us-tab .inputs input[type="text"], .inputs input[type="password"], .inputs input[type="email"], .inputs input[type="tel"], .inputs select, .inputs textarea
-  {
-    height: 25px;
-    padding: 0 5px;
-    font-size: 12px;
-  }
+  /*#contact-us-tab .inputs input[type="text"], .inputs input[type="password"], .inputs input[type="email"], .inputs input[type="tel"], .inputs select, .inputs textarea*/
+  /*{*/
+  /*  height: 25px;*/
+  /*  padding: 0 5px;*/
+  /*  font-size: 12px;*/
+  /*}*/
 }
