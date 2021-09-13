@@ -19,6 +19,9 @@
     {
         Html.AddMetaDescriptionParts(seoSettings.HomepageDescription);
     }
+    //Homepage image 
+    var homepageMetaImage = await settingService.GetSettingByKeyAsync("seosettings.homepage.image","");
+    Html.AddHeadCustomParts("<meta property=\"og:image:url\" content=\"" + homepageMetaImage + "\" />");
 
     //page class
     Html.AppendPageCssClassParts("html-home-page");
