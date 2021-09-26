@@ -41,7 +41,7 @@
     Html.AppendScriptParts(ResourceLocation.Footer, "~/lib_npm/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js");
     Html.AppendScriptParts(ResourceLocation.Footer, "~/lib_npm/jquery-validation/jquery.validate.min.js");
     Html.AppendScriptParts(ResourceLocation.Footer, "~/lib_npm/jquery/jquery.min.js");
-    
+
     //custom tag(s);
     if (!string.IsNullOrEmpty(seoSettings.CustomHeadTags))
     {
@@ -59,11 +59,11 @@
 <html lang="@languageService.GetTwoLetterIsoLanguageName(await workContext.GetWorkingLanguageAsync())" @(await this.ShouldUseRtlThemeAsync() ? Html.Raw(" dir=\"rtl\"") : null) @Html.NopPageCssClasses()>
 <head>
     <title>@Html.NopTitle()</title>
-    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
-    <meta name="description" content="@(Html.NopMetaDescription())" />
-    <meta name="keywords" content="@(Html.NopMetaKeywords())" />
-    <meta name="generator" content="nopCommerce" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8"/>
+    <meta name="description" content="@(Html.NopMetaDescription())"/>
+    <meta name="keywords" content="@(Html.NopMetaKeywords())"/>
+    <meta name="generator" content="nopCommerce"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
     <link rel="preload" as="font" href="@Url.Content($"~/Themes/{await themeContext.GetWorkingThemeNameAsync()}/Content/icons/emporium-icons.woff")" crossorigin>
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700&amp;subset=cyrillic-ext,greek-ext&display=swap" rel="stylesheet">
     @Html.NopHeadCustom()
@@ -80,20 +80,30 @@
     @await Component.InvokeAsync("Favicon")
     @if (displayMiniProfiler)
     {
-        <mini-profiler />
+        <mini-profiler/>
     }
     @Html.NopInlineScripts(ResourceLocation.Head)
     <!--Powered by nopCommerce - https://www.nopCommerce.com-->
-    
+
     <!--Load Gfarm Custom css-->
     <link href="@Url.Content("~/gfarm/gfarm-custom-mobile.css")" rel="stylesheet">
-
+    <script type="text/javascript">
+        window.addEventListener( "pageshow", function ( event ) {
+        var historyPage = event.persisted ||
+        ( typeof window.performance != "undefined" &&
+        window.performance.navigation.type === 2 );
+        if ( historyPage ) {
+        // Handle page restore.
+        window.location.reload();
+        }
+        });
+    </script>
 </head>
 <body class="@currentPageClass">
-    @RenderBody()
-    @Html.NopCssFiles(ResourceLocation.Footer)
-    @Html.NopScripts(ResourceLocation.Footer)
-    @Html.NopInlineScripts(ResourceLocation.Footer)
-    <div class="scroll-back-button" id="goToTop"></div>
+@RenderBody()
+@Html.NopCssFiles(ResourceLocation.Footer)
+@Html.NopScripts(ResourceLocation.Footer)
+@Html.NopInlineScripts(ResourceLocation.Footer)
+<div class="scroll-back-button" id="goToTop"></div>
 </body>
 </html>
