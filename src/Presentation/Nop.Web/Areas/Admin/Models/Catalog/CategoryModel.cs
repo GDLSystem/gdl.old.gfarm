@@ -61,6 +61,10 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
 
         [NopResourceDisplayName("Admin.Catalog.Categories.Fields.SeName")]
         public string SeName { get; set; }
+        
+        [UIHint("Picture")]
+        [NopResourceDisplayName("Admin.Catalog.Categories.Fields.SeoPicture")]
+        public int? SeoPictureId { get; set; }
 
         [NopResourceDisplayName("Admin.Catalog.Categories.Fields.Parent")]
         public int ParentCategoryId { get; set; }

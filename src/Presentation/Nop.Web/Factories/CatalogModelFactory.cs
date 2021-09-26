@@ -403,6 +403,14 @@ namespace Nop.Web.Factories
                 CatalogProductsModel = await PrepareCategoryProductsModelAsync(category, command)
             };
 
+            if (category.SeoPictureId.HasValue)
+            { 
+                var picture = await _pictureService.GetPictureByIdAsync(category.SeoPictureId.Value);
+                string fullSizeImageUrl;
+
+                (fullSizeImageUrl, _) = await _pictureService.GetPictureUrlAsync(picture);
+                model.MetaImageUrl = fullSizeImageUrl;
+            }
             //category breadcrumb
             if (_catalogSettings.CategoryBreadcrumbEnabled)
             {
@@ -431,12 +439,13 @@ namespace Nop.Web.Factories
                         SeName = await _urlRecordService.GetSeNameAsync(curCategory),
                         Description = await _localizationService.GetLocalizedAsync(curCategory, y => y.Description)
                     };
-
+                    
                     //prepare picture model
                     var categoryPictureCacheKey = _staticCacheManager.PrepareKeyForDefaultCache(NopModelCacheDefaults.CategoryPictureModelKey, curCategory,
                         pictureSize, true, await _workContext.GetWorkingLanguageAsync(), _webHelper.IsCurrentConnectionSecured(),
                         currentStore);
 
+                   
                     subCatModel.PictureModel = await _staticCacheManager.GetAsync(categoryPictureCacheKey, async () =>
                     {
                         var picture = await _pictureService.GetPictureByIdAsync(curCategory.PictureId);

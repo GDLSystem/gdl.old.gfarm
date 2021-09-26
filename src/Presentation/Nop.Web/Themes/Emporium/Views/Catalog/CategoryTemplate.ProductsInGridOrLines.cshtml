@@ -16,6 +16,7 @@
     //meta
     Html.AddMetaDescriptionParts(Model.MetaDescription);
     Html.AddMetaKeywordParts(Model.MetaKeywords);
+    Html.AddHeadCustomParts("<meta property=\"og:image:url\" content=\"" + Model.MetaImageUrl + "\" />");
     //page class
     Html.AppendPageCssClassParts("html-category-page");
 

@@ -42,6 +42,11 @@ namespace Nop.Core.Domain.Catalog
         /// Gets or sets the meta title
         /// </summary>
         public string MetaTitle { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the picture identifier
+        /// </summary>
+        public int? SeoPictureId { get; set; }
 
         /// <summary>
         /// Gets or sets the parent category identifier
