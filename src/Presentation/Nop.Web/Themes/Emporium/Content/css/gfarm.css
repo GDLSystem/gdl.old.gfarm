@@ -1,0 +1,51 @@
+﻿a {
+  text-decoration: none;
+}
+.about-item{
+  float: left;
+  width: 100%;
+  display: block;
+}
+div.image-box{
+  height: 150px;
+  width: 150px;
+  border: 1px dashed black;
+  background: #E3F2FD;
+  margin: 20px;
+}
+div.about-item-text{
+  float: left;
+  padding: 0 15px;
+}
+
+.rich-blog-homepage .post-picture::before{
+  padding-top: 52% !important;
+}
+.testimonial-item
+{
+  min-height: 250px;
+  color: #333333 !important;
+}
+.carousel-control-next, .carousel-control-prev{
+  color: #333333 !important;
+}
+.testimonial-item .avatar{
+  float: left;
+  width: 150px;
+  height: 150px;
+}
+.testimonial-item .message{
+  padding-left: 30px;
+}
+.carousel-caption{
+  text-align: justify-all;
+  color: #333333 !important;
+}
+
+.mt-30{
+  margin-top: 30px;
+}
+.checkout-as-guest-button {
+  background-color: #4DAD3C !important;
+  color: whitesmoke !important;
+}

@@ -33,6 +33,14 @@
 
     <Compile Remove="Plugins\**;Themes\**" />
     <Content Remove="Plugins\**;Themes\**" />
+    <Content Include="Themes\Emporium\Views\Product\_ProductBreadcrumb.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Themes\Emporium\Views\Shared\Components\HomepageAboutUs\Default.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
     <Content Include="Themes\Emporium\Views\Shared\Components\NewsletterBox\Default.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
@@ -52,6 +60,10 @@
     <None Update="Areas\Admin\sitemap.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+
+    <None Include="Themes\Emporium\Views\Shared\Components\RichBlogHomePage\Default.cshtml">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -65,6 +77,10 @@
 
   <ItemGroup>
     <Folder Include="Plugins\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Themes\Emporium\Views\Shared\Components\RichBlogHomePage\Default.cshtml" />
   </ItemGroup>
 
   <!-- This target execute after "Build" target.

@@ -1314,14 +1314,15 @@ td.remove-from-cart label, td.add-to-cart label {
 
 
 
-.login-page .new-wrapper {
-	position: relative;
-	float: right;
-	width: 49%;
-	max-width: none;
-	min-height: 440px;
-	z-index: 1;
-}
+  .login-page .new-wrapper {
+    position: relative;
+    float: left;
+    width: 49%;
+    margin-right: 20px;
+    max-width: none;
+    min-height: 440px;
+    z-index: 1;
+  }
 
 .login-page .returning-wrapper form {
 	float: left;

@@ -190,11 +190,6 @@ image, img{
     -webkit-order: 1 !important;
     margin-bottom: 5px !important;
   }
-  .product-social-buttons{
-    order: 2 !important;
-    -webkit-order: 2 !important;
-    margin-bottom: 5px !important;
-  }
   .reviews-and-compare{
     order: 3 !important;
     -webkit-order: 3 !important;
@@ -211,6 +206,11 @@ image, img{
     margin-bottom: 5px !important;
   }
 
+  .product-social-buttons{
+    order: 6 !important;
+    -webkit-order: 6 !important;
+    margin-bottom: 5px !important;
+  }
   .overview .stock, .variant-overview .stock{
     margin: 0;
   }

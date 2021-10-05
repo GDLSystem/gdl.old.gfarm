@@ -1,0 +1,168 @@
+﻿@model HomeAboutModel
+@* <div class="home-page-about"> *@
+@*     <div class="home-about-header text-center"> *@
+@*         <div class="title"> *@
+@*             <h2>@T("HomePage.AboutUsTitle")</h2> *@
+@*         </div> *@
+@*     </div> *@
+@* *@
+@*     <div class="home-about-header text-center"> *@
+@*         <div class="title"> *@
+@*             <h4>@T("HomePage.AboutUsSubTitle")</h4> *@
+@*         </div> *@
+@*     </div> *@
+@*     <div class="home-page-about-content"> *@
+@*         <div class="container"> *@
+@*             <div class="row"> *@
+@*                 <div class="col-md-4 about-left"> *@
+@*                     <div class="about-item"> *@
+@*                         <div class="float-left image-box"> *@
+@*                             <img src="" alt="About image 1"/> *@
+@*                         </div> *@
+@*                         <div class="about-item-text"> *@
+@* *@
+@*                         </div> *@
+@*                     </div> *@
+@*                     <div class="about-item"> *@
+@*                         <div class="float-left image-box"> *@
+@*                             <img src="" alt="About image 1"/> *@
+@*                         </div> *@
+@*                         <div class="about-item-text"> *@
+@* *@
+@*                         </div> *@
+@*                     </div> *@
+@*                     <div class="about-item"> *@
+@*                         <div class="float-left image-box"> *@
+@*                             <img src="" alt="About image 1"/> *@
+@*                         </div> *@
+@*                         <div class="about-item-text"> *@
+@* *@
+@*                         </div> *@
+@*                     </div> *@
+@*                 </div> *@
+@*                  *@
+@*                 <div class="col-md-4 about-center"> *@
+@*                      *@
+@*                 </div> *@
+@*                  *@
+@*                 <div class="col-md-4 about-right"> *@
+@*                     <div class="about-item"> *@
+@*                         <div class="float-left image-box"> *@
+@*                             <img src="" alt="About image 1"/> *@
+@*                         </div> *@
+@*                         <div class="about-item-text"> *@
+@* *@
+@*                         </div> *@
+@*                     </div> *@
+@*                     <div class="about-item"> *@
+@*                         <div class="float-left image-box"> *@
+@*                             <img src="" alt="About image 1"/> *@
+@*                         </div> *@
+@*                         <div class="about-item-text"> *@
+@* *@
+@*                         </div> *@
+@*                     </div> *@
+@*                     <div class="about-item"> *@
+@*                         <div class="float-left image-box"> *@
+@*                             <img src="" alt="About image 1"/> *@
+@*                         </div> *@
+@*                         <div class="about-item-text"> *@
+@* *@
+@*                         </div> *@
+@*                     </div> *@
+@*                 </div> *@
+@*             </div> *@
+@*         </div> *@
+@*     </div> *@
+@* </div> *@
+
+
+<div class="home-page-about">
+    <div class="home-about-header text-center">
+        <div class="title">
+            <h2>@T("HomePage.AboutUsTitle")</h2>
+        </div>
+    </div>
+
+    <div class="home-about-header text-center">
+        <div class="title">
+            <h4>@T("HomePage.AboutUsSubTitle")</h4>
+        </div>
+    </div>
+    <div class="home-page-about-content">
+        @Html.Raw(Model.AboutModel.Body)
+    </div>
+</div>
+
+<div class="home-testimonials">
+    <div class="home-testimonial-header text-center">
+        <div class="title">
+            <h2>@T("HomePage.Testimonial")</h2>
+        </div>
+    </div>
+    <div class="home-testimonial-content margin-t-30">
+        @* @Html.Raw(Model.HomeTestimonialModel.Body) *@
+        <div id="carouselHomeTestimonial" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            </div>
+            <div class="carousel-inner">
+                <div class="carousel-item testimonial-item active">
+                    <div class="carousel-caption d-none d-md-block">
+                        <div class="row">
+                            <div class="col-md-6 offset-3">
+                                <div class="avatar">
+                                    <img src="https://gfarm.com.vn/images/uploaded/clients/img-mobile-light.jpg" alt="...">
+                                </div>
+                                <div class="message">
+                                    <h5>First slide label</h5>
+                                    <p>Some representative placeholder content for the first slide.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item testimonial-item">
+                    <div class="carousel-caption d-none d-md-block">
+                        <div class="row">
+                            <div class="col-md-6 offset-3">
+                                <div class="avatar">
+                                    <img src="https://gfarm.com.vn/images/uploaded/clients/img-mobile-light.jpg" alt="...">
+                                </div>
+                                <div class="message">
+                                    <h5>First slide label</h5>
+                                    <p>Some representative placeholder content for the first slide.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item testimonial-item">
+                    <div class="carousel-caption d-none d-md-block">
+                        <div class="row">
+                            <div class="col-md-6 offset-3">
+                                <div class="avatar">
+                                    <img src="https://gfarm.com.vn/images/uploaded/clients/img-mobile-light.jpg" alt="...">
+                                </div>
+                                <div class="message">
+                                    <h5>First slide label</h5>
+                                    <p>Some representative placeholder content for the first slide.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselHomeTestimonial" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselHomeTestimonial" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+    </div>
+</div>

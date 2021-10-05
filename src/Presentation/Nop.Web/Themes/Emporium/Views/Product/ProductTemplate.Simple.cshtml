@@ -139,7 +139,7 @@
                         <div class="product-prices-box">
                             <div>
                                 <!--availability-->
-                                @await Html.PartialAsync("_Availability", Model)
+                                @* @await Html.PartialAsync("_Availability", Model) *@
                                 @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsInsideOverviewButtonsBefore, additionalData = Model })
                                 <!--price & add to cart-->
                                 @{
