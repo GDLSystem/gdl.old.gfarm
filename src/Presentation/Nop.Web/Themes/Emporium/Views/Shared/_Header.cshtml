@@ -43,10 +43,16 @@
 		            <ul class="category-navigation-list @if (stickyCategoryMenuFlyout){<text>sticky-flyout</text>}"></ul>
 		        </div>
 		    }
-		    <div class="close-menu">
-		    	<span class="close-menu-text">@T("SevenSpikes.Themes.Common.MenuTitle")</span>
-		        <span class="close-menu-btn">@T("SevenSpikes.Themes.Common.CloseMenu")</span>
-		    </div>
+            <div class="close-menu">
+                <span class="close-menu-text">@T("SevenSpikes.Themes.Common.MenuTitle")</span>
+                <span class="close-menu-btn">@T("SevenSpikes.Themes.Common.CloseMenu")</span>
+            </div>
+            <div class="main-menu-left">
+                <ul class="menu-left">
+                    <li><a><i class="far fa-clock"></i> @T("MainMenu.WorkingTitle"): @T("MainMenu.WorkingHoursValue")</a></li>
+                    <li><a><i class="fas fa-phone-alt"></i> @T("MainMenu.HotLine"): @T("MainMenu.HotLineValue")</a></li>
+                </ul>
+            </div>
             @{
                 var menuHtml = await Component.InvokeAsync("Widget", new { widgetZone = "theme_header_menu" });
             }

@@ -3353,9 +3353,9 @@ input + .inputs-icons {
 	width: 100%;
 	background-color: #f1f1f1;
 	border-radius: 3px;
-	font-weight: bold;
+	font-weight: normal;
 	font-size: 14px;
-	color: #8c8c8c;
+	color: #666666;
 	text-transform: uppercase;
 	transition: all .2s ease;
 }

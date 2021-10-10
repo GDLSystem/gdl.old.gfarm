@@ -170,11 +170,6 @@ var Billing = {
     if (typeof response.wrong_billing_address === 'undefined') {
       response.wrong_billing_address = false;
     }
-    if (response.goto_section == 'payment_info'){
-      response.wrong_billing_address = false;
-      return true;
-    }
-    
     if (Billing.disableBillingAddressCheckoutStep) {
       if (response.wrong_billing_address) {
         Accordion.showSection('#opc-billing');
@@ -193,6 +188,7 @@ var Billing = {
 
       return false;
     }
+
     Checkout.setStepResponse(response);
     Billing.initializeCountrySelect();
   },
@@ -551,14 +547,7 @@ var PaymentInfo = {
     }
 };
 
-var ConfirmOrderOneClick = {
-  save: function () {
-    Billing.save();
-    setTimeout(function (){
-      ConfirmOrder.save();
-    },1000);
-  }
-}
+
 
 var ConfirmOrder = {
     form: false,
@@ -569,13 +558,8 @@ var ConfirmOrder = {
         this.saveUrl = saveUrl;
         this.successUrl = successUrl;
     },
-    
+
     save: function () {
-        //Shipping.save();
-        //ShippingMethod.save();
-        //PaymentInfo.save();
-        //PaymentMethod.save();
-        
         if (Checkout.loadWaiting !== false) return;
 
         //terms of service

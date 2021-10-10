@@ -1,0 +1,106 @@
+﻿@model OnePageCheckoutModel
+@using Nop.Core
+@using Nop.Services.Customers
+@inject IWebHelper webHelper
+@inject IWorkContext workContext
+@inject ICustomerService _customerService
+@{
+    Layout = "_ColumnsOne";
+
+    var storeLocation = webHelper.GetStoreLocation();
+
+    //title
+    Html.AddTitleParts(T("PageTitle.Checkout").Text);
+    //page class
+    Html.AppendPageCssClassParts("html-checkout-page");
+}
+<div class="page shopping-cart-page">
+
+    <div class="page-title">
+        <h1>@T("ShoppingCart")</h1>
+    </div>
+    <div class="page-body">
+        <form asp-action="Cart" asp-controller="Checkout">
+            <div class="opc-checkout-discount">
+                @if (Model.ShoppingCart.IsEditable)
+                {
+                    <div class="cart-collaterals">
+                        @if (Model.ShoppingCart.DiscountBox.Display || Model.ShoppingCart.GiftCardBox.Display)
+                        {
+                            <div class="deals">
+                                <div class="title">@T("ShoppingCart.DiscountAndVouchers")</div>
+                                <div class="list">
+                                    @await Html.PartialAsync("_DiscountBox", Model.ShoppingCart.DiscountBox)
+                                    @await Html.PartialAsync("_GiftCardBox", Model.ShoppingCart.GiftCardBox)
+                                    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.OrderSummaryContentDeals })
+                                </div>
+                            </div>
+                            @await Component.InvokeAsync("ShoppingCartEstimateShipping")
+                        }
+                    </div>
+                }
+            </div>
+        </form>
+        <form asp-action="OpcConfirmOrderCustom" method="post" enctype="multipart/form-data" id="shopping-cart-form">
+
+            <div class="opc-billing-addresses">
+                @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CheckoutBillingAddressTop })
+
+                <div class="section select-billing-address">
+                    <div class="title">
+                        <h1>@T("Checkout.CustomerCheckoutInfo")</h1>
+                    </div>
+                    @* @if (Model.BillingAddress.InvalidExistingAddresses.Count > 0) *@
+                    @* { *@
+                    @*     <div class="min-amount-warning"> *@
+                    @*         <span>@string.Format(T("Checkout.Addresses.Invalid").Text, Model.BillingAddress.InvalidExistingAddresses.Count)</span> *@
+                    @*     </div> *@
+                    @* } *@
+                    <div class="opc-address-grid">
+                        
+                        <div class="opc-add-button">
+                            <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                            <div class="enter-address">
+                                @{
+                                    var dataDictAddress = new ViewDataDictionary(ViewData);
+                                    dataDictAddress.TemplateInfo.HtmlFieldPrefix = "BillingNewAddress";
+                                    @await Html.PartialAsync("_OnePageCheckoutAddress", Model.BillingAddress.BillingNewAddress, dataDictAddress)
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CheckoutBillingAddressMiddle })
+
+                @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CheckoutBillingAddressBottom })
+            </div>
+            <div class="opc-order-summary">
+                <div class="payment-info">
+                    <div class="section payment-info">
+                        <div class="info">
+                            @await Component.InvokeAsync(Model.CheckoutPaymentInfo.PaymentViewComponentName)
+                        </div>
+                    </div>
+                </div>
+                @* <div class="payment-info"> *@
+                @*     <div class="section payment-info"> *@
+                @*         <div class="info"> *@
+                @*             <table width="100%" cellspacing="0" cellpadding="0"> *@
+                @*                 <tbody> *@
+                @*                 <tr> *@
+                @*                     <td><p><span style="font-size:12pt"> *@
+                @*                             <strong><em>@T("ShoppingCart.Totals.Shipping.DirectToCustomer")</em></strong> *@
+                @*                         </span></p> *@
+                @*                     </td> *@
+                @*                 </tr> *@
+                @*                 </tbody> *@
+                @*                 </table> *@
+                @*              *@
+                @*         </div> *@
+                @*     </div> *@
+                @* </div> *@
+                @await Html.PartialAsync("_OrderSummary", Model.ShoppingCart)
+            </div>
+        </form>
+    </div>
+</div>

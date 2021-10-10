@@ -611,12 +611,15 @@ namespace Nop.Web.Factories
         {
             if (cart == null)
                 throw new ArgumentNullException(nameof(cart));
+            var paymentMethod = (await _paymentPluginManager
+                .LoadActivePluginsAsyncAsync()).FirstOrDefault();
 
             var model = new OnePageCheckoutModel
             {
                 ShippingRequired = await _shoppingCartService.ShoppingCartRequiresShippingAsync(cart),
                 DisableBillingAddressCheckoutStep = _orderSettings.DisableBillingAddressCheckoutStep && (await _customerService.GetAddressesByCustomerIdAsync((await _workContext.GetCurrentCustomerAsync()).Id)).Any(),
-                BillingAddress = await PrepareBillingAddressModelAsync(cart, prePopulateNewAddressWithCustomerFields: true)
+                BillingAddress = await PrepareBillingAddressModelAsync(cart, prePopulateNewAddressWithCustomerFields: true),
+                CheckoutPaymentInfo = await PreparePaymentInfoModelAsync(paymentMethod)
             };
             return model;
         }

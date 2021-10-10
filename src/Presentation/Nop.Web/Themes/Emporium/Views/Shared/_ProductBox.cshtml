@@ -72,20 +72,20 @@
                 @Model.Sku
             </div>
         }
-        @if (Model.ReviewOverviewModel.AllowCustomerReviews)
-        {
-            var ratingPercent = 0;
-            if (Model.ReviewOverviewModel.TotalReviews != 0)
-            {
-                ratingPercent = ((Model.ReviewOverviewModel.RatingSum*100)/Model.ReviewOverviewModel.TotalReviews)/5;
-            }
-            <div class="product-rating-box" title="@string.Format(T("Reviews.TotalReviews").Text, Model.ReviewOverviewModel.TotalReviews)">
-                <div class="rating">
-                    <div style="width: @(ratingPercent)%">
-                    </div>
-                </div>
-            </div>
-        }
+        @* @if (Model.ReviewOverviewModel.AllowCustomerReviews) *@
+        @* { *@
+        @*     var ratingPercent = 0; *@
+        @*     if (Model.ReviewOverviewModel.TotalReviews != 0) *@
+        @*     { *@
+        @*         ratingPercent = ((Model.ReviewOverviewModel.RatingSum*100)/Model.ReviewOverviewModel.TotalReviews)/5; *@
+        @*     } *@
+        @*     <div class="product-rating-box" title="@string.Format(T("Reviews.TotalReviews").Text, Model.ReviewOverviewModel.TotalReviews)"> *@
+        @*         <div class="rating"> *@
+        @*             <div style="width: @(ratingPercent)%"> *@
+        @*             </div> *@
+        @*         </div> *@
+        @*     </div> *@
+        @* } *@
         <div class="description">
             @Html.Raw(Model.ShortDescription)
         </div>

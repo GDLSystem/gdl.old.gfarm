@@ -28,7 +28,7 @@ namespace Nop.Web.Components
         }
 
         /// <returns>A task that represents the asynchronous operation</returns>
-        public async Task<IViewComponentResult> InvokeAsync(bool? prepareAndDisplayOrderReviewData, ShoppingCartModel overriddenModel)
+        public async Task<IViewComponentResult> InvokeAsync(bool? prepareAndDisplayOrderReviewData, ShoppingCartModel overriddenModel, bool? showSubmitOrder)
         {
             //use already prepared (shared) model
             if (overriddenModel != null)

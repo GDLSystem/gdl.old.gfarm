@@ -4,8 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Nop.Core;
+using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Orders;
@@ -16,8 +18,10 @@ using Nop.Services.Catalog;
 using Nop.Services.Common;
 using Nop.Services.Customers;
 using Nop.Services.Directory;
+using Nop.Services.Discounts;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
+using Nop.Services.Media;
 using Nop.Services.Orders;
 using Nop.Services.Payments;
 using Nop.Services.Shipping;
@@ -25,6 +29,7 @@ using Nop.Web.Extensions;
 using Nop.Web.Factories;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Models.Checkout;
+using Nop.Web.Models.ShoppingCart;
 
 namespace Nop.Web.Controllers
 {
@@ -58,6 +63,14 @@ namespace Nop.Web.Controllers
         private readonly RewardPointsSettings _rewardPointsSettings;
         private readonly ShippingSettings _shippingSettings;
 
+
+        private readonly IDownloadService _downloadService;
+        private readonly ICheckoutAttributeParser _checkoutAttributeParser;
+        private readonly ICheckoutAttributeService _checkoutAttributeService;
+        private readonly IGiftCardService _giftCardService;
+        private readonly IShoppingCartModelFactory _shoppingCartModelFactory;
+        private readonly IDiscountService _discountService;
+
         #endregion
 
         #region Ctor
@@ -85,7 +98,7 @@ namespace Nop.Web.Controllers
             OrderSettings orderSettings,
             PaymentSettings paymentSettings,
             RewardPointsSettings rewardPointsSettings,
-            ShippingSettings shippingSettings)
+            ShippingSettings shippingSettings, IShoppingCartModelFactory shoppingCartModelFactory, ICheckoutAttributeParser checkoutAttributeParser, ICheckoutAttributeService checkoutAttributeService, IGiftCardService giftCardService, IDiscountService discountService, IDownloadService downloadService)
         {
             _addressSettings = addressSettings;
             _customerSettings = customerSettings;
@@ -111,6 +124,12 @@ namespace Nop.Web.Controllers
             _paymentSettings = paymentSettings;
             _rewardPointsSettings = rewardPointsSettings;
             _shippingSettings = shippingSettings;
+            _shoppingCartModelFactory = shoppingCartModelFactory;
+            _checkoutAttributeParser = checkoutAttributeParser;
+            _checkoutAttributeService = checkoutAttributeService;
+            _giftCardService = giftCardService;
+            _discountService = discountService;
+            _downloadService = downloadService;
         }
 
         #endregion
@@ -125,7 +144,7 @@ namespace Nop.Web.Controllers
                 return true;
 
             var lastOrder = (await _orderService.SearchOrdersAsync(storeId: (await _storeContext.GetCurrentStoreAsync()).Id,
-                customerId: (await _workContext.GetCurrentCustomerAsync()).Id, pageSize: 1))
+                    customerId: (await _workContext.GetCurrentCustomerAsync()).Id, pageSize: 1))
                 .FirstOrDefault();
             if (lastOrder == null)
                 return true;
@@ -178,9 +197,7 @@ namespace Nop.Web.Controllers
         /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task SavePickupOptionAsync(PickupPoint pickupPoint)
         {
-            var name = !string.IsNullOrEmpty(pickupPoint.Name) ?
-                string.Format(await _localizationService.GetResourceAsync("Checkout.PickupPoints.Name"), pickupPoint.Name) :
-                await _localizationService.GetResourceAsync("Checkout.PickupPoints.NullName");
+            var name = !string.IsNullOrEmpty(pickupPoint.Name) ? string.Format(await _localizationService.GetResourceAsync("Checkout.PickupPoints.Name"), pickupPoint.Name) : await _localizationService.GetResourceAsync("Checkout.PickupPoints.NullName");
             var pickUpInStoreShippingOption = new ShippingOption
             {
                 Name = name,
@@ -221,7 +238,7 @@ namespace Nop.Web.Controllers
             //then we should allow standard checkout
             //all payment methods (do not filter by country here as it could be not specified yet)
             var paymentMethods = await (await _paymentPluginManager
-                .LoadActivePluginsAsyncAsync(await _workContext.GetCurrentCustomerAsync(), (await _storeContext.GetCurrentStoreAsync()).Id))
+                    .LoadActivePluginsAsyncAsync(await _workContext.GetCurrentCustomerAsync(), (await _storeContext.GetCurrentStoreAsync()).Id))
                 .WhereAwait(async pm => !await pm.HidePaymentMethodAsync(cart)).ToListAsync();
             //payment methods displayed during checkout (not with "Button" type)
             var nonButtonPaymentMethods = paymentMethods
@@ -283,12 +300,14 @@ namespace Nop.Web.Controllers
                 //load order by identifier (if provided)
                 order = await _orderService.GetOrderByIdAsync(orderId.Value);
             }
+
             if (order == null)
             {
                 order = (await _orderService.SearchOrdersAsync(storeId: (await _storeContext.GetCurrentStoreAsync()).Id,
-                customerId: (await _workContext.GetCurrentCustomerAsync()).Id, pageSize: 1))
+                        customerId: (await _workContext.GetCurrentCustomerAsync()).Id, pageSize: 1))
                     .FirstOrDefault();
             }
+
             if (order == null || order.Deleted || (await _workContext.GetCurrentCustomerAsync()).Id != order.CustomerId)
             {
                 return RedirectToRoute("Homepage");
@@ -320,10 +339,7 @@ namespace Nop.Web.Controllers
                 throw new ArgumentNullException(nameof(address));
 
             var json = JsonConvert.SerializeObject(address, Formatting.Indented,
-                new JsonSerializerSettings
-                {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                });
+                new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
 
             return Content(json, "application/json");
         }
@@ -358,22 +374,11 @@ namespace Nop.Web.Controllers
 
                 if (!opc)
                 {
-                    return Json(new
-                    {
-                        redirect = Url.RouteUrl("CheckoutBillingAddress")
-                    });
+                    return Json(new { redirect = Url.RouteUrl("CheckoutBillingAddress") });
                 }
 
                 var billingAddressModel = await _checkoutModelFactory.PrepareBillingAddressModelAsync(cart, address.CountryId);
-                return Json(new
-                {
-                    selected_id = model.BillingNewAddress.Id,
-                    update_section = new UpdateSectionJsonModel
-                    {
-                        name = "billing",
-                        html = await RenderPartialViewToStringAsync("OpcBillingAddress", billingAddressModel)
-                    }
-                });
+                return Json(new { selected_id = model.BillingNewAddress.Id, update_section = new UpdateSectionJsonModel { name = "billing", html = await RenderPartialViewToStringAsync("OpcBillingAddress", billingAddressModel) } });
             }
             catch (Exception exc)
             {
@@ -409,21 +414,11 @@ namespace Nop.Web.Controllers
 
             if (!opc)
             {
-                return Json(new
-                {
-                    redirect = Url.RouteUrl("CheckoutBillingAddress")
-                });
+                return Json(new { redirect = Url.RouteUrl("CheckoutBillingAddress") });
             }
 
             var billingAddressModel = await _checkoutModelFactory.PrepareBillingAddressModelAsync(cart);
-            return Json(new
-            {
-                update_section = new UpdateSectionJsonModel
-                {
-                    name = "billing",
-                    html = await RenderPartialViewToStringAsync("OpcBillingAddress", billingAddressModel)
-                }
-            });
+            return Json(new { update_section = new UpdateSectionJsonModel { name = "billing", html = await RenderPartialViewToStringAsync("OpcBillingAddress", billingAddressModel) } });
         }
 
         #endregion
@@ -711,7 +706,6 @@ namespace Nop.Web.Controllers
                     await _addressService.InsertAddressAsync(address);
 
                     await _customerService.InsertCustomerAddressAsync(await _workContext.GetCurrentCustomerAsync(), address);
-
                 }
 
                 (await _workContext.GetCurrentCustomerAsync()).ShippingAddressId = address.Id;
@@ -948,6 +942,7 @@ namespace Nop.Web.Controllers
                     NopCustomerDefaults.SelectedPaymentMethodAttribute, null, (await _storeContext.GetCurrentStoreAsync()).Id);
                 return RedirectToRoute("CheckoutPaymentInfo");
             }
+
             //payment method 
             if (string.IsNullOrEmpty(paymentmethod))
                 return await PaymentMethod();
@@ -1129,6 +1124,7 @@ namespace Nop.Web.Controllers
 
                     processPaymentRequest = new ProcessPaymentRequest();
                 }
+
                 _paymentService.GenerateOrderGuid(processPaymentRequest);
                 processPaymentRequest.StoreId = (await _storeContext.GetCurrentStoreAsync()).Id;
                 processPaymentRequest.CustomerId = (await _workContext.GetCurrentCustomerAsync()).Id;
@@ -1139,10 +1135,7 @@ namespace Nop.Web.Controllers
                 if (placeOrderResult.Success)
                 {
                     HttpContext.Session.Set<ProcessPaymentRequest>("OrderPaymentInfo", null);
-                    var postProcessPaymentRequest = new PostProcessPaymentRequest
-                    {
-                        Order = placeOrderResult.PlacedOrder
-                    };
+                    var postProcessPaymentRequest = new PostProcessPaymentRequest { Order = placeOrderResult.PlacedOrder };
                     await _paymentService.PostProcessPaymentAsync(postProcessPaymentRequest);
 
                     if (_webHelper.IsRequestBeingRedirected || _webHelper.IsPostBeingDone)
@@ -1188,15 +1181,7 @@ namespace Nop.Web.Controllers
                 return await OpcLoadStepAfterShippingMethod(cart);
             }
 
-            return Json(new
-            {
-                update_section = new UpdateSectionJsonModel
-                {
-                    name = "shipping-method",
-                    html = await RenderPartialViewToStringAsync("OpcShippingMethods", shippingMethodModel)
-                },
-                goto_section = "shipping_method"
-            });
+            return Json(new { update_section = new UpdateSectionJsonModel { name = "shipping-method", html = await RenderPartialViewToStringAsync("OpcShippingMethods", shippingMethodModel) }, goto_section = "shipping_method" });
         }
 
         /// <returns>A task that represents the asynchronous operation</returns>
@@ -1237,15 +1222,7 @@ namespace Nop.Web.Controllers
                 }
 
                 //customer have to choose a payment method
-                return Json(new
-                {
-                    update_section = new UpdateSectionJsonModel
-                    {
-                        name = "payment-method",
-                        html = await RenderPartialViewToStringAsync("OpcPaymentMethods", paymentMethodModel)
-                    },
-                    goto_section = "payment_method"
-                });
+                return Json(new { update_section = new UpdateSectionJsonModel { name = "payment-method", html = await RenderPartialViewToStringAsync("OpcPaymentMethods", paymentMethodModel) }, goto_section = "payment_method" });
             }
 
             //payment is not required
@@ -1253,15 +1230,7 @@ namespace Nop.Web.Controllers
                 NopCustomerDefaults.SelectedPaymentMethodAttribute, null, (await _storeContext.GetCurrentStoreAsync()).Id);
 
             var confirmOrderModel = await _checkoutModelFactory.PrepareConfirmOrderModelAsync(cart);
-            return Json(new
-            {
-                update_section = new UpdateSectionJsonModel
-                {
-                    name = "confirm-order",
-                    html = await RenderPartialViewToStringAsync("OpcConfirmOrder", confirmOrderModel)
-                },
-                goto_section = "confirm_order"
-            });
+            return Json(new { update_section = new UpdateSectionJsonModel { name = "confirm-order", html = await RenderPartialViewToStringAsync("OpcConfirmOrder", confirmOrderModel) }, goto_section = "confirm_order" });
         }
 
         /// <returns>A task that represents the asynchronous operation</returns>
@@ -1277,28 +1246,12 @@ namespace Nop.Web.Controllers
                 HttpContext.Session.Set("OrderPaymentInfo", paymentInfo);
 
                 var confirmOrderModel = await _checkoutModelFactory.PrepareConfirmOrderModelAsync(cart);
-                return Json(new
-                {
-                    update_section = new UpdateSectionJsonModel
-                    {
-                        name = "confirm-order",
-                        html = await RenderPartialViewToStringAsync("OpcConfirmOrder", confirmOrderModel)
-                    },
-                    goto_section = "confirm_order"
-                });
+                return Json(new { update_section = new UpdateSectionJsonModel { name = "confirm-order", html = await RenderPartialViewToStringAsync("OpcConfirmOrder", confirmOrderModel) }, goto_section = "confirm_order" });
             }
 
             //return payment info page
             var paymenInfoModel = await _checkoutModelFactory.PreparePaymentInfoModelAsync(paymentMethod);
-            return Json(new
-            {
-                update_section = new UpdateSectionJsonModel
-                {
-                    name = "payment-info",
-                    html = await RenderPartialViewToStringAsync("OpcPaymentInfo", paymenInfoModel)
-                },
-                goto_section = "payment_info"
-            });
+            return Json(new { update_section = new UpdateSectionJsonModel { name = "payment-info", html = await RenderPartialViewToStringAsync("OpcPaymentInfo", paymenInfoModel) }, goto_section = "payment_info" });
         }
 
         /// <returns>A task that represents the asynchronous operation</returns>
@@ -1320,6 +1273,10 @@ namespace Nop.Web.Controllers
                 return Challenge();
 
             var model = await _checkoutModelFactory.PrepareOnePageCheckoutModelAsync(cart);
+
+            model.ShoppingCart = new ShoppingCartModel();
+            model.ShoppingCart = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(model.ShoppingCart, cart);
+
             return View(model);
         }
 
@@ -1350,7 +1307,7 @@ namespace Nop.Web.Controllers
                 {
                     //existing address
                     var address = await _customerService.GetCustomerAddressAsync((await _workContext.GetCurrentCustomerAsync()).Id, billingAddressId)
-                        ?? throw new Exception(await _localizationService.GetResourceAsync("Checkout.Address.NotFound"));
+                                  ?? throw new Exception(await _localizationService.GetResourceAsync("Checkout.Address.NotFound"));
 
                     (await _workContext.GetCurrentCustomerAsync()).BillingAddressId = address.Id;
                     await _customerService.UpdateCustomerAsync(await _workContext.GetCurrentCustomerAsync());
@@ -1376,15 +1333,7 @@ namespace Nop.Web.Controllers
                             selectedCountryId: newAddress.CountryId,
                             overrideAttributesXml: customAttributes);
                         billingAddressModel.NewAddressPreselected = true;
-                        return Json(new
-                        {
-                            update_section = new UpdateSectionJsonModel
-                            {
-                                name = "billing",
-                                html = await RenderPartialViewToStringAsync("OpcBillingAddress", billingAddressModel)
-                            },
-                            wrong_billing_address = true,
-                        });
+                        return Json(new { update_section = new UpdateSectionJsonModel { name = "billing", html = await RenderPartialViewToStringAsync("OpcBillingAddress", billingAddressModel) }, wrong_billing_address = true, });
                     }
 
                     //try to find an address with the same values (don't duplicate records)
@@ -1441,15 +1390,7 @@ namespace Nop.Web.Controllers
                     //do not ship to the same address
                     var shippingAddressModel = await _checkoutModelFactory.PrepareShippingAddressModelAsync(cart, prePopulateNewAddressWithCustomerFields: true);
 
-                    return Json(new
-                    {
-                        update_section = new UpdateSectionJsonModel
-                        {
-                            name = "shipping",
-                            html = await RenderPartialViewToStringAsync("OpcShippingAddress", shippingAddressModel)
-                        },
-                        goto_section = "shipping"
-                    });
+                    return Json(new { update_section = new UpdateSectionJsonModel { name = "shipping", html = await RenderPartialViewToStringAsync("OpcShippingAddress", shippingAddressModel) }, goto_section = "shipping" });
                 }
 
                 //shipping is not required
@@ -1511,7 +1452,7 @@ namespace Nop.Web.Controllers
                 {
                     //existing address
                     var address = await _customerService.GetCustomerAddressAsync((await _workContext.GetCurrentCustomerAsync()).Id, shippingAddressId)
-                        ?? throw new Exception(await _localizationService.GetResourceAsync("Checkout.Address.NotFound"));
+                                  ?? throw new Exception(await _localizationService.GetResourceAsync("Checkout.Address.NotFound"));
 
                     (await _workContext.GetCurrentCustomerAsync()).ShippingAddressId = address.Id;
                     await _customerService.UpdateCustomerAsync(await _workContext.GetCurrentCustomerAsync());
@@ -1537,14 +1478,7 @@ namespace Nop.Web.Controllers
                             selectedCountryId: newAddress.CountryId,
                             overrideAttributesXml: customAttributes);
                         shippingAddressModel.NewAddressPreselected = true;
-                        return Json(new
-                        {
-                            update_section = new UpdateSectionJsonModel
-                            {
-                                name = "shipping",
-                                html = await RenderPartialViewToStringAsync("OpcShippingAddress", shippingAddressModel)
-                            }
-                        });
+                        return Json(new { update_section = new UpdateSectionJsonModel { name = "shipping", html = await RenderPartialViewToStringAsync("OpcShippingAddress", shippingAddressModel) } });
                     }
 
                     //try to find an address with the same values (don't duplicate records)
@@ -1706,15 +1640,7 @@ namespace Nop.Web.Controllers
                         NopCustomerDefaults.SelectedPaymentMethodAttribute, null, (await _storeContext.GetCurrentStoreAsync()).Id);
 
                     var confirmOrderModel = await _checkoutModelFactory.PrepareConfirmOrderModelAsync(cart);
-                    return Json(new
-                    {
-                        update_section = new UpdateSectionJsonModel
-                        {
-                            name = "confirm-order",
-                            html = await RenderPartialViewToStringAsync("OpcConfirmOrder", confirmOrderModel)
-                        },
-                        goto_section = "confirm_order"
-                    });
+                    return Json(new { update_section = new UpdateSectionJsonModel { name = "confirm-order", html = await RenderPartialViewToStringAsync("OpcConfirmOrder", confirmOrderModel) }, goto_section = "confirm_order" });
                 }
 
                 var paymentMethodInst = await _paymentPluginManager
@@ -1759,8 +1685,8 @@ namespace Nop.Web.Controllers
                 var paymentMethodSystemName = await _genericAttributeService.GetAttributeAsync<string>(await _workContext.GetCurrentCustomerAsync(),
                     NopCustomerDefaults.SelectedPaymentMethodAttribute, (await _storeContext.GetCurrentStoreAsync()).Id);
                 var paymentMethod = await _paymentPluginManager
-                    .LoadPluginBySystemNameAsync(paymentMethodSystemName, await _workContext.GetCurrentCustomerAsync(), (await _storeContext.GetCurrentStoreAsync()).Id)
-                    ?? throw new Exception("Payment method is not selected");
+                                        .LoadPluginBySystemNameAsync(paymentMethodSystemName, await _workContext.GetCurrentCustomerAsync(), (await _storeContext.GetCurrentStoreAsync()).Id)
+                                    ?? throw new Exception("Payment method is not selected");
 
                 var warnings = await paymentMethod.ValidatePaymentFormAsync(form);
                 foreach (var warning in warnings)
@@ -1776,27 +1702,12 @@ namespace Nop.Web.Controllers
                     HttpContext.Session.Set("OrderPaymentInfo", paymentInfo);
 
                     var confirmOrderModel = await _checkoutModelFactory.PrepareConfirmOrderModelAsync(cart);
-                    return Json(new
-                    {
-                        update_section = new UpdateSectionJsonModel
-                        {
-                            name = "confirm-order",
-                            html = await RenderPartialViewToStringAsync("OpcConfirmOrder", confirmOrderModel)
-                        },
-                        goto_section = "confirm_order"
-                    });
+                    return Json(new { update_section = new UpdateSectionJsonModel { name = "confirm-order", html = await RenderPartialViewToStringAsync("OpcConfirmOrder", confirmOrderModel) }, goto_section = "confirm_order" });
                 }
 
                 //If we got this far, something failed, redisplay form
                 var paymenInfoModel = await _checkoutModelFactory.PreparePaymentInfoModelAsync(paymentMethod);
-                return Json(new
-                {
-                    update_section = new UpdateSectionJsonModel
-                    {
-                        name = "payment-info",
-                        html = await RenderPartialViewToStringAsync("OpcPaymentInfo", paymenInfoModel)
-                    }
-                });
+                return Json(new { update_section = new UpdateSectionJsonModel { name = "payment-info", html = await RenderPartialViewToStringAsync("OpcPaymentInfo", paymenInfoModel) } });
             }
             catch (Exception exc)
             {
@@ -1842,6 +1753,7 @@ namespace Nop.Web.Controllers
 
                     processPaymentRequest = new ProcessPaymentRequest();
                 }
+
                 _paymentService.GenerateOrderGuid(processPaymentRequest);
                 processPaymentRequest.StoreId = (await _storeContext.GetCurrentStoreAsync()).Id;
                 processPaymentRequest.CustomerId = (await _workContext.GetCurrentCustomerAsync()).Id;
@@ -1852,10 +1764,7 @@ namespace Nop.Web.Controllers
                 if (placeOrderResult.Success)
                 {
                     HttpContext.Session.Set<ProcessPaymentRequest>("OrderPaymentInfo", null);
-                    var postProcessPaymentRequest = new PostProcessPaymentRequest
-                    {
-                        Order = placeOrderResult.PlacedOrder
-                    };
+                    var postProcessPaymentRequest = new PostProcessPaymentRequest { Order = placeOrderResult.PlacedOrder };
 
                     var paymentMethod = await _paymentPluginManager
                         .LoadPluginBySystemNameAsync(placeOrderResult.PlacedOrder.PaymentMethodSystemName, await _workContext.GetCurrentCustomerAsync(), (await _storeContext.GetCurrentStoreAsync()).Id);
@@ -1870,10 +1779,7 @@ namespace Nop.Web.Controllers
                         //That's why we don't process it here (we redirect a user to another page where he'll be redirected)
 
                         //redirect
-                        return Json(new
-                        {
-                            redirect = $"{_webHelper.GetStoreLocation()}checkout/OpcCompleteRedirectionPayment"
-                        });
+                        return Json(new { redirect = $"{_webHelper.GetStoreLocation()}checkout/OpcCompleteRedirectionPayment" });
                     }
 
                     await _paymentService.PostProcessPaymentAsync(postProcessPaymentRequest);
@@ -1886,21 +1792,410 @@ namespace Nop.Web.Controllers
                 foreach (var error in placeOrderResult.Errors)
                     confirmOrderModel.Warnings.Add(error);
 
-                return Json(new
-                {
-                    update_section = new UpdateSectionJsonModel
-                    {
-                        name = "confirm-order",
-                        html = await RenderPartialViewToStringAsync("OpcConfirmOrder", confirmOrderModel)
-                    },
-                    goto_section = "confirm_order"
-                });
+                return Json(new { update_section = new UpdateSectionJsonModel { name = "confirm-order", html = await RenderPartialViewToStringAsync("OpcConfirmOrder", confirmOrderModel) }, goto_section = "confirm_order" });
             }
             catch (Exception exc)
             {
                 await _logger.WarningAsync(exc.Message, exc, await _workContext.GetCurrentCustomerAsync());
                 return Json(new { error = 1, message = exc.Message });
             }
+        }
+
+        [IgnoreAntiforgeryToken]
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public virtual async Task<IActionResult> OpcConfirmOrderCustom(CheckoutBillingAddressModel model, IFormCollection form)
+        {
+            try
+            {
+                var cart = await _shoppingCartService.GetShoppingCartAsync(await _workContext.GetCurrentCustomerAsync(), ShoppingCartType.ShoppingCart, (await _storeContext.GetCurrentStoreAsync()).Id);
+
+                if (!cart.Any())
+                    throw new Exception("Your cart is empty");
+                //handle address
+
+                //custom address attributes
+                var customAttributes = await _addressAttributeParser.ParseCustomAddressAttributesAsync(form);
+                var customAttributeWarnings = await _addressAttributeParser.GetAttributeWarningsAsync(customAttributes);
+                foreach (var error in customAttributeWarnings)
+                {
+                    ModelState.AddModelError("", error);
+                }
+
+                var newAddress = model.BillingNewAddress;
+
+                if (ModelState.IsValid)
+                {
+                    //try to find an address with the same values (don't duplicate records)
+                    var address = _addressService.FindAddress((await _customerService.GetAddressesByCustomerIdAsync((await _workContext.GetCurrentCustomerAsync()).Id)).ToList(),
+                        newAddress.FirstName, newAddress.LastName, newAddress.PhoneNumber,
+                        newAddress.Email, newAddress.FaxNumber, newAddress.Company,
+                        newAddress.Address1, newAddress.Address2, newAddress.City,
+                        newAddress.County, newAddress.StateProvinceId, newAddress.ZipPostalCode,
+                        newAddress.CountryId, customAttributes);
+
+                    if (address == null)
+                    {
+                        //address is not found. let's create a new one
+                        address = newAddress.ToEntity();
+                        address.CustomAttributes = customAttributes;
+                        address.CreatedOnUtc = DateTime.UtcNow;
+
+                        //some validation
+                        if (address.CountryId == 0)
+                            address.CountryId = null;
+                        if (address.StateProvinceId == 0)
+                            address.StateProvinceId = null;
+
+                        await _addressService.InsertAddressAsync(address);
+
+                        await _customerService.InsertCustomerAddressAsync(await _workContext.GetCurrentCustomerAsync(), address);
+                    }
+
+                    (await _workContext.GetCurrentCustomerAsync()).BillingAddressId = address.Id;
+
+                    await _customerService.UpdateCustomerAsync(await _workContext.GetCurrentCustomerAsync());
+
+                    //ship to the same address?
+                    if (_shippingSettings.ShipToSameAddress && model.ShipToSameAddress && await _shoppingCartService.ShoppingCartRequiresShippingAsync(cart))
+                    {
+                        (await _workContext.GetCurrentCustomerAsync()).ShippingAddressId = (await _workContext.GetCurrentCustomerAsync()).BillingAddressId;
+                        await _customerService.UpdateCustomerAsync(await _workContext.GetCurrentCustomerAsync());
+
+                        //reset selected shipping method (in case if "pick up in store" was selected)
+                        await _genericAttributeService.SaveAttributeAsync<ShippingOption>(await _workContext.GetCurrentCustomerAsync(), NopCustomerDefaults.SelectedShippingOptionAttribute, null, (await _storeContext.GetCurrentStoreAsync()).Id);
+                        await _genericAttributeService.SaveAttributeAsync<PickupPoint>(await _workContext.GetCurrentCustomerAsync(), NopCustomerDefaults.SelectedPickupPointAttribute, null, (await _storeContext.GetCurrentStoreAsync()).Id);
+                    }
+                }
+                else
+                {
+                    var modelCheckout = await _checkoutModelFactory.PrepareOnePageCheckoutModelAsync(cart);
+                    //If we got this far, something failed, redisplay form
+                    modelCheckout.BillingAddress = await _checkoutModelFactory.PrepareBillingAddressModelAsync(cart,
+                        selectedCountryId: newAddress.CountryId,
+                        overrideAttributesXml: customAttributes);
+                    return View("OnePageCheckout", modelCheckout);
+                }
+
+
+                //validation
+                if (_orderSettings.CheckoutDisabled)
+                    throw new Exception(await _localizationService.GetResourceAsync("Checkout.Disabled"));
+
+
+                if (!_orderSettings.OnePageCheckoutEnabled)
+                    throw new Exception("One page checkout is disabled");
+
+                if (await _customerService.IsGuestAsync(await _workContext.GetCurrentCustomerAsync()) && !_orderSettings.AnonymousCheckoutAllowed)
+                    throw new Exception("Anonymous checkout is not allowed");
+
+                //prevent 2 orders being placed within an X seconds time frame
+                if (!await IsMinimumOrderPlacementIntervalValidAsync(await _workContext.GetCurrentCustomerAsync()))
+                    throw new Exception(await _localizationService.GetResourceAsync("Checkout.MinOrderPlacementInterval"));
+
+                //place order
+                var processPaymentRequest = HttpContext.Session.Get<ProcessPaymentRequest>("OrderPaymentInfo");
+                if (processPaymentRequest == null)
+                {
+                    //Check whether payment workflow is required
+                    // if (await _orderProcessingService.IsPaymentWorkflowRequiredAsync(cart))
+                    // {
+                    //     throw new Exception("Payment information is not entered");
+                    // }
+
+                    processPaymentRequest = new ProcessPaymentRequest();
+                }
+
+                _paymentService.GenerateOrderGuid(processPaymentRequest);
+                processPaymentRequest.StoreId = (await _storeContext.GetCurrentStoreAsync()).Id;
+                processPaymentRequest.CustomerId = (await _workContext.GetCurrentCustomerAsync()).Id;
+                
+                if (cart == null)
+                    throw new ArgumentNullException(nameof(cart));
+                var paymentMethodModel = await  _checkoutModelFactory.PreparePaymentMethodModelAsync(cart,0);
+                processPaymentRequest.PaymentMethodSystemName = paymentMethodModel.PaymentMethods[0].PaymentMethodSystemName;
+                var placeOrderResult = await _orderProcessingService.PlaceOrderAsync(processPaymentRequest);
+                if (placeOrderResult.Success)
+                {
+                    HttpContext.Session.Set<ProcessPaymentRequest>("OrderPaymentInfo", null);
+                    var postProcessPaymentRequest = new PostProcessPaymentRequest { Order = placeOrderResult.PlacedOrder };
+
+                   var paymentMethod = await _paymentPluginManager
+                        .LoadPluginBySystemNameAsync(placeOrderResult.PlacedOrder.PaymentMethodSystemName, await _workContext.GetCurrentCustomerAsync(), (await _storeContext.GetCurrentStoreAsync()).Id);
+                    if (paymentMethod == null)
+                        //payment method could be null if order total is 0
+                        //success
+                        return Json(new { success = 1 });
+
+                    if (paymentMethod.PaymentMethodType == PaymentMethodType.Redirection)
+                    {
+                        //Redirection will not work because it's AJAX request.
+                        //That's why we don't process it here (we redirect a user to another page where he'll be redirected)
+
+                        //redirect
+                        return Json(new { redirect = $"{_webHelper.GetStoreLocation()}checkout/OpcCompleteRedirectionPayment" });
+                    }
+
+                    await _paymentService.PostProcessPaymentAsync(postProcessPaymentRequest);
+                    //success
+                    return RedirectToRoute("CheckoutCompleted", new { orderId = placeOrderResult.PlacedOrder.Id });
+                }
+
+                //error
+                var confirmOrderModel = new CheckoutConfirmModel();
+                foreach (var error in placeOrderResult.Errors)
+                    confirmOrderModel.Warnings.Add(error);
+
+                return Json(new { update_section = new UpdateSectionJsonModel { name = "confirm-order", html = await RenderPartialViewToStringAsync("OpcConfirmOrder", confirmOrderModel) }, goto_section = "confirm_order" });
+            }
+            catch (Exception exc)
+            {
+                await _logger.WarningAsync(exc.Message, exc, await _workContext.GetCurrentCustomerAsync());
+                return Json(new { error = 1, message = exc.Message });
+            }
+        }
+        
+        [HttpPost, ActionName("Cart")]
+        [FormValueRequired("applydiscountcouponcode")]
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public virtual async Task<IActionResult> ApplyDiscountCoupon(string discountcouponcode, IFormCollection form)
+        {
+            //trim
+            if (discountcouponcode != null)
+                discountcouponcode = discountcouponcode.Trim();
+
+            //cart
+            var cart = await _shoppingCartService.GetShoppingCartAsync(await _workContext.GetCurrentCustomerAsync(), ShoppingCartType.ShoppingCart, (await _storeContext.GetCurrentStoreAsync()).Id);
+
+            var modelCheckout = await _checkoutModelFactory.PrepareOnePageCheckoutModelAsync(cart);
+
+            var model = new ShoppingCartModel();
+            //parse and save checkout attributes
+            await ParseAndSaveCheckoutAttributesAsync(cart, form);
+
+            
+            if (!string.IsNullOrWhiteSpace(discountcouponcode))
+            {
+                //we find even hidden records here. this way we can display a user-friendly message if it's expired
+                var discounts = (await _discountService.GetAllDiscountsAsync(couponCode: discountcouponcode, showHidden: true))
+                    .Where(d => d.RequiresCouponCode)
+                    .ToList();
+                if (discounts.Any())
+                {
+                    var userErrors = new List<string>();
+                    var anyValidDiscount = await discounts.AnyAwaitAsync(async discount =>
+                    {
+                        var validationResult = await _discountService.ValidateDiscountAsync(discount, await _workContext.GetCurrentCustomerAsync(), new[] { discountcouponcode });
+                        userErrors.AddRange(validationResult.Errors);
+
+                        return validationResult.IsValid;
+                    });
+
+                    if (anyValidDiscount)
+                    {
+                        //valid
+                        await _customerService.ApplyDiscountCouponCodeAsync(await _workContext.GetCurrentCustomerAsync(), discountcouponcode);
+                        model.DiscountBox.Messages.Add(await _localizationService.GetResourceAsync("ShoppingCart.DiscountCouponCode.Applied"));
+                        model.DiscountBox.IsApplied = true;
+                    }
+                    else
+                    {
+                        if (userErrors.Any())
+                            //some user errors
+                            model.DiscountBox.Messages = userErrors;
+                        else
+                            //general error text
+                            model.DiscountBox.Messages.Add(await _localizationService.GetResourceAsync("ShoppingCart.DiscountCouponCode.WrongDiscount"));
+                    }
+                }
+                else
+                    //discount cannot be found
+                    model.DiscountBox.Messages.Add(await _localizationService.GetResourceAsync("ShoppingCart.DiscountCouponCode.CannotBeFound"));
+            }
+            else
+                //empty coupon code
+                model.DiscountBox.Messages.Add(await _localizationService.GetResourceAsync("ShoppingCart.DiscountCouponCode.Empty"));
+
+            modelCheckout.ShoppingCart = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(model, cart);
+            
+            return View("OnePageCheckout", modelCheckout);
+        }
+
+        [HttpPost, ActionName("Cart")]
+        [FormValueRequired("applygiftcardcouponcode")]
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public virtual async Task<IActionResult> ApplyGiftCard(string giftcardcouponcode, IFormCollection form)
+        {
+            //trim
+            if (giftcardcouponcode != null)
+                giftcardcouponcode = giftcardcouponcode.Trim();
+
+            //cart
+            var cart = await _shoppingCartService.GetShoppingCartAsync(await _workContext.GetCurrentCustomerAsync(), ShoppingCartType.ShoppingCart, (await _storeContext.GetCurrentStoreAsync()).Id);
+
+            //parse and save checkout attributes
+            await ParseAndSaveCheckoutAttributesAsync(cart, form);
+            var modelCheckout = await _checkoutModelFactory.PrepareOnePageCheckoutModelAsync(cart);
+
+            var model = new ShoppingCartModel();
+            if (!await _shoppingCartService.ShoppingCartIsRecurringAsync(cart))
+            {
+                if (!string.IsNullOrWhiteSpace(giftcardcouponcode))
+                {
+                    var giftCard = (await _giftCardService.GetAllGiftCardsAsync(giftCardCouponCode: giftcardcouponcode)).FirstOrDefault();
+                    var isGiftCardValid = giftCard != null && await _giftCardService.IsGiftCardValidAsync(giftCard);
+                    if (isGiftCardValid)
+                    {
+                        await _customerService.ApplyGiftCardCouponCodeAsync(await _workContext.GetCurrentCustomerAsync(), giftcardcouponcode);
+                        model.GiftCardBox.Message = await _localizationService.GetResourceAsync("ShoppingCart.GiftCardCouponCode.Applied");
+                        model.GiftCardBox.IsApplied = true;
+                    }
+                    else
+                    {
+                        model.GiftCardBox.Message = await _localizationService.GetResourceAsync("ShoppingCart.GiftCardCouponCode.WrongGiftCard");
+                        model.GiftCardBox.IsApplied = false;
+                    }
+                }
+                else
+                {
+                    model.GiftCardBox.Message = await _localizationService.GetResourceAsync("ShoppingCart.GiftCardCouponCode.WrongGiftCard");
+                    model.GiftCardBox.IsApplied = false;
+                }
+            }
+            else
+            {
+                model.GiftCardBox.Message = await _localizationService.GetResourceAsync("ShoppingCart.GiftCardCouponCode.DontWorkWithAutoshipProducts");
+                model.GiftCardBox.IsApplied = false;
+            }
+
+            modelCheckout.ShoppingCart = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(model, cart);
+            return View("OnePageCheckout", modelCheckout);
+        }
+
+        /// <returns>A task that represents the asynchronous operation</returns>
+        protected virtual async Task ParseAndSaveCheckoutAttributesAsync(IList<ShoppingCartItem> cart, IFormCollection form)
+        {
+            if (cart == null)
+                throw new ArgumentNullException(nameof(cart));
+
+            if (form == null)
+                throw new ArgumentNullException(nameof(form));
+
+            var attributesXml = string.Empty;
+            var excludeShippableAttributes = !await _shoppingCartService.ShoppingCartRequiresShippingAsync(cart);
+            var checkoutAttributes = await _checkoutAttributeService.GetAllCheckoutAttributesAsync((await _storeContext.GetCurrentStoreAsync()).Id, excludeShippableAttributes);
+            foreach (var attribute in checkoutAttributes)
+            {
+                var controlId = $"checkout_attribute_{attribute.Id}";
+                switch (attribute.AttributeControlType)
+                {
+                    case AttributeControlType.DropdownList:
+                    case AttributeControlType.RadioList:
+                    case AttributeControlType.ColorSquares:
+                    case AttributeControlType.ImageSquares:
+                        {
+                            var ctrlAttributes = form[controlId];
+                            if (!StringValues.IsNullOrEmpty(ctrlAttributes))
+                            {
+                                var selectedAttributeId = int.Parse(ctrlAttributes);
+                                if (selectedAttributeId > 0)
+                                    attributesXml = _checkoutAttributeParser.AddCheckoutAttribute(attributesXml,
+                                        attribute, selectedAttributeId.ToString());
+                            }
+                        }
+
+                        break;
+                    case AttributeControlType.Checkboxes:
+                        {
+                            var cblAttributes = form[controlId];
+                            if (!StringValues.IsNullOrEmpty(cblAttributes))
+                            {
+                                foreach (var item in cblAttributes.ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                                {
+                                    var selectedAttributeId = int.Parse(item);
+                                    if (selectedAttributeId > 0)
+                                        attributesXml = _checkoutAttributeParser.AddCheckoutAttribute(attributesXml,
+                                            attribute, selectedAttributeId.ToString());
+                                }
+                            }
+                        }
+
+                        break;
+                    case AttributeControlType.ReadonlyCheckboxes:
+                        {
+                            //load read-only (already server-side selected) values
+                            var attributeValues = await _checkoutAttributeService.GetCheckoutAttributeValuesAsync(attribute.Id);
+                            foreach (var selectedAttributeId in attributeValues
+                                .Where(v => v.IsPreSelected)
+                                .Select(v => v.Id)
+                                .ToList())
+                            {
+                                attributesXml = _checkoutAttributeParser.AddCheckoutAttribute(attributesXml,
+                                            attribute, selectedAttributeId.ToString());
+                            }
+                        }
+
+                        break;
+                    case AttributeControlType.TextBox:
+                    case AttributeControlType.MultilineTextbox:
+                        {
+                            var ctrlAttributes = form[controlId];
+                            if (!StringValues.IsNullOrEmpty(ctrlAttributes))
+                            {
+                                var enteredText = ctrlAttributes.ToString().Trim();
+                                attributesXml = _checkoutAttributeParser.AddCheckoutAttribute(attributesXml,
+                                    attribute, enteredText);
+                            }
+                        }
+
+                        break;
+                    case AttributeControlType.Datepicker:
+                        {
+                            var date = form[controlId + "_day"];
+                            var month = form[controlId + "_month"];
+                            var year = form[controlId + "_year"];
+                            DateTime? selectedDate = null;
+                            try
+                            {
+                                selectedDate = new DateTime(int.Parse(year), int.Parse(month), int.Parse(date));
+                            }
+                            catch
+                            {
+                                // ignored
+                            }
+
+                            if (selectedDate.HasValue)
+                                attributesXml = _checkoutAttributeParser.AddCheckoutAttribute(attributesXml,
+                                    attribute, selectedDate.Value.ToString("D"));
+                        }
+
+                        break;
+                    case AttributeControlType.FileUpload:
+                        {
+                            Guid.TryParse(form[controlId], out var downloadGuid);
+                            var download = await _downloadService.GetDownloadByGuidAsync(downloadGuid);
+                            if (download != null)
+                            {
+                                attributesXml = _checkoutAttributeParser.AddCheckoutAttribute(attributesXml,
+                                           attribute, download.DownloadGuid.ToString());
+                            }
+                        }
+
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            //validate conditional attributes (if specified)
+            foreach (var attribute in checkoutAttributes)
+            {
+                var conditionMet = await _checkoutAttributeParser.IsConditionMetAsync(attribute, attributesXml);
+                if (conditionMet.HasValue && !conditionMet.Value)
+                    attributesXml = _checkoutAttributeParser.RemoveCheckoutAttribute(attributesXml, attribute);
+            }
+
+            //save checkout attributes
+            await _genericAttributeService.SaveAttributeAsync(await _workContext.GetCurrentCustomerAsync(), NopCustomerDefaults.CheckoutAttributes, attributesXml, (await _storeContext.GetCurrentStoreAsync()).Id);
         }
 
         /// <returns>A task that represents the asynchronous operation</returns>
@@ -1917,7 +2212,7 @@ namespace Nop.Web.Controllers
 
                 //get the order
                 var order = (await _orderService.SearchOrdersAsync(storeId: (await _storeContext.GetCurrentStoreAsync()).Id,
-                customerId: (await _workContext.GetCurrentCustomerAsync()).Id, pageSize: 1)).FirstOrDefault();
+                    customerId: (await _workContext.GetCurrentCustomerAsync()).Id, pageSize: 1)).FirstOrDefault();
                 if (order == null)
                     return RedirectToRoute("Homepage");
 
@@ -1934,10 +2229,7 @@ namespace Nop.Web.Controllers
 
                 //Redirection will not work on one page checkout page because it's AJAX request.
                 //That's why we process it here
-                var postProcessPaymentRequest = new PostProcessPaymentRequest
-                {
-                    Order = order
-                };
+                var postProcessPaymentRequest = new PostProcessPaymentRequest { Order = order };
 
                 await _paymentService.PostProcessPaymentAsync(postProcessPaymentRequest);
 
