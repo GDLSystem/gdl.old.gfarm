@@ -145,6 +145,10 @@ ul.menu-left li a{
   font-weight: bold;
   transition: color .2s ease;
 }
+.login-page .title, .registration-page .title, .login-page .title strong, .registration-page .title strong{
+  color: #333333 !important;
+}
+
 @media all and (max-width: 1024px) {
 
   .main-menu-left{
