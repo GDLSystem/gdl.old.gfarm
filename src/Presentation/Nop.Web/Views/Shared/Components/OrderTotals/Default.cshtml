@@ -145,17 +145,17 @@
                     }
                 </td>
             </tr>
-            @if (Model.WillEarnRewardPoints > 0)
-            {
-                <tr class="earn-reward-points">
-                    <td class="cart-total-left">
-                        <label>@T("ShoppingCart.Totals.RewardPoints.WillEarn"):</label>
-                    </td>
-                    <td class="cart-total-right">
-                        <span class="value-summary">@string.Format(T("ShoppingCart.Totals.RewardPoints.WillEarn.Point").Text, Model.WillEarnRewardPoints)</span>
-                    </td>
-                </tr>
-            }
+            @* @if (Model.WillEarnRewardPoints > 0) *@
+            @* { *@
+            @*     <tr class="earn-reward-points"> *@
+            @*         <td class="cart-total-left"> *@
+            @*             <label>@T("ShoppingCart.Totals.RewardPoints.WillEarn"):</label> *@
+            @*         </td> *@
+            @*         <td class="cart-total-right"> *@
+            @*             <span class="value-summary">@string.Format(T("ShoppingCart.Totals.RewardPoints.WillEarn.Point").Text, Model.WillEarnRewardPoints)</span> *@
+            @*         </td> *@
+            @*     </tr> *@
+            @* } *@
         </tbody>
     </table>
 </div>

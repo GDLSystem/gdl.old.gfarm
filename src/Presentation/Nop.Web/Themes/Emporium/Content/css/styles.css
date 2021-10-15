@@ -2365,6 +2365,9 @@ input + .inputs-icons {
 .social-sharing .rss:before {
 	content: "\73";
 }
+.social-sharing .tiktok:before {
+  content: "\e07b";
+}
 
 .footer-lower {
 	overflow: hidden;
@@ -2392,8 +2395,21 @@ input + .inputs-icons {
 	height: 36px;
 }
 
+.footer-header{
+
+}
+
+.footer-header ul {
+  display: block;
+  padding: 10px 0;
+  font-size: 14px;
+}
+
+.footer-header ul li {
+  padding: 8px;
+}
+
 .footer-block ul {
-	display: none;
 	padding: 10px 0;
 	background-color: #f6f6f6;
 }
