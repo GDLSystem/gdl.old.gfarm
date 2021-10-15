@@ -112,9 +112,19 @@
 @Html.NopInlineScripts(ResourceLocation.Footer)
 <div class="scroll-back-button" id="goToTop"></div>
 <div id="support-center">
-	<a class="zalo sup-action" href="https://zalo.me/454991409513397636" rel="noreferrer nofollow" target="_blank" data-toggle="tooltip" data-placement="right" title="" data-original-title="Chat Zalo!">
-		<img src="~/images/widget_icon_zalo.svg" class="lazyloaded" data-ll-status="loaded">
+    <a class="zalo sup-action" href="https://zalo.me/454991409513397636" rel="noreferrer nofollow" target="_blank" data-toggle="tooltip" data-placement="right" title="" data-original-title="Chat Zalo!">
+        <img src="~/images/zalo-icon.png" class="lazyloaded" data-ll-status="loaded">
     </a>
+</div>
+<div class="hotlinefix">
+    <span class="phone">
+        <p>
+            <a href="tel:@(T("Gfarm.Hotline.Number"))">@T("Gfarm.Hotline.Number")</a>
+        </p>
+    </span>
+    <div class="circle-hotline">
+        <span><img src="~/images/hotline.png"></span>
+    </div>
 </div>
 <!-- Messenger Chat plugin Code -->
     <div id="fb-root"></div>
