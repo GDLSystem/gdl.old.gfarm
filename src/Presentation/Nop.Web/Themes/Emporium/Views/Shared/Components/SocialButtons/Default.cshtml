@@ -11,6 +11,8 @@
     var instagramUrl = await settingService.GetSettingByKeyAsync("emporiumthemesettings.instagramurl", String.Empty, storeId, true);
     var pinterestUrl = await settingService.GetSettingByKeyAsync("emporiumthemesettings.pinteresturl", String.Empty, storeId, true);
     var vimeoUrl = await settingService.GetSettingByKeyAsync("emporiumthemesettings.vimeourl", String.Empty, storeId, true);
+    var tiktokUrl = "https://www.tiktok.com/@gfarmdalat";
+    var tiktokText = "Tiktok";
 }
 
 <ul class="social-sharing">
@@ -38,6 +40,7 @@
     {
         <li><a target="_blank" class="instagram" href="@instagramUrl" rel="noopener noreferrer" aria-label="@T("SevenSpikes.Themes.Common.Footer.FollowUs.Instagram")"></a></li>
     }
+    <li><a target="_blank" class="pinterest" href="@tiktokUrl" rel="noopener noreferrer" aria-label="@tiktokText"></a></li>
     @* @if (Model.NewsEnabled) *@
     @* { *@
     @*     <li><a class="rss" href="@Url.RouteUrl("NewsRSS", new {languageId = Model.WorkingLanguageId})" aria-label="@T("Footer.FollowUs.RSS")"></a></li> *@
