@@ -207,6 +207,19 @@ ul.menu-left li a{
   display: inline-block;
   width: 28%;
 }
+#support-center {
+  background: transparent;
+  border: 0 none;
+  bottom: 80px;
+  height: auto;
+  right: 10px;
+  width: 50px;
+  position: fixed;
+  z-index: 100;
+}
+.icon-zalo{
+  
+}
 @media all and (max-width: 768px){
   .home-about-item{
     width: 100%;
