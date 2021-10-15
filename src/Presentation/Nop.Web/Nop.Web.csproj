@@ -78,6 +78,10 @@
     <None Include="Themes\Emporium\Views\Checkout\_OrderSummary.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
+
+    <None Include="Themes\Emporium\Views\Home\_AboutGfarm.cshtml">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

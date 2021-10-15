@@ -149,8 +149,85 @@ ul.menu-left li a{
   color: #333333 !important;
 }
 
-@media all and (max-width: 1024px) {
+/*About Gfarm home*/
+.home-about-item{
+  width: 32%;
+  float: left;
+}
+.home-about-center img{
+  width: 100%;
+  padding: 10px;
+}
 
+.home-about-title{
+  margin-bottom: 40px;
+}
+
+.home-about-item .text h4{
+  font-size: 18px;
+}
+.home-about-item .text{
+  text-align: left;
+}
+
+.home-about-left li{
+  float: left;
+  display: block;
+  width: 100%;
+  margin: 20px 0 10px 0;
+  min-height: 150px;
+}
+.home-about-left li .text{
+  padding: 10px;
+  float: left;
+  display: inline-block;
+  width: 70%;
+}
+.home-about-left li .img{
+  float: right;
+  display: inline-block;
+  width: 28%;
+}
+
+.home-about-right li{
+  float: left;
+  display: block;
+  width: 100%;
+  margin: 20px 0 10px 0;
+  min-height: 150px;
+}
+.home-about-right li .text{
+  padding: 10px;
+  float: right;
+  display: inline-block;
+  width: 70%;
+}
+.home-about-right li .img{
+  float: left;
+  display: inline-block;
+  width: 28%;
+}
+@media all and (max-width: 768px){
+  .home-about-item{
+    width: 100%;
+  }
+  .home-about-left li .text{
+    margin-bottom: 30px;
+  }
+  .home-about-left li .text, .home-about-left li .img,.home-about-right li .text ,.home-about-right li .img{
+    width: 100%;
+    display: block;
+    text-align: center;
+    position: relative;
+  }
+  .home-about-right li .img img, .home-about-left li .img img{
+    width: 60%;
+    margin: 0 auto;
+  }
+
+}
+  @media all and (max-width: 1024px) {
+  
   .main-menu-left{
     display: none !important;
   }
