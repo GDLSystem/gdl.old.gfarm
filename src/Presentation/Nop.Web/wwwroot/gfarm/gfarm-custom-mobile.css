@@ -204,6 +204,8 @@ image, img{
     order: 5 !important;
     -webkit-order: 5 !important;
     margin-bottom: 5px !important;
+    text-align: left;
+    padding: 0 10px;
   }
 
   .product-social-buttons{
@@ -232,7 +234,7 @@ image, img{
   }
   .overview .short-description, .full-description p{
     line-height: 1.4 !important;
-    font-size: 12px !important;
+    font-size: 15px !important;
     margin: 0 0 5px 0 !important;
   }
   .productTabs.ui-tabs .ui-tabs-nav li{

@@ -3900,6 +3900,7 @@ input + .inputs-icons {
 .overview .additional-details,
 .variant-overview .additional-details {
 	margin-bottom: 30px;
+  text-align: left;
 }
 
 .overview .additional-details div,
@@ -3994,6 +3995,12 @@ input + .inputs-icons {
 
 .attributes dl {
 	overflow: hidden; 
+}
+@media (max-width: 576px) {
+  .attributes dl dt{
+    overflow: hidden;
+    visibility: hidden;
+  }
 }
 .attributes dt,
 .attributes .attribute-label,
@@ -4501,7 +4508,7 @@ td.add-to-cart label,
 }
 .overview .product-price,
 .variant-overview .product-price {
-	font-size: 25px;
+	font-size: 20px;
 	color: #97c300;
 	font-weight: bold;
 }
@@ -4779,7 +4786,7 @@ td.add-to-cart label,
 .overview .add-to-cart-button,
 .variant-overview .add-to-cart-button {
 	padding: 0 15px;
-	font-size: 15px;
+	font-size: 12px;
 	vertical-align: top;
 	text-align: center;
 	text-overflow: ellipsis;
