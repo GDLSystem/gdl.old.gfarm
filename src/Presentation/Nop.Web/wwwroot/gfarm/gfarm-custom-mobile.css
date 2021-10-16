@@ -236,6 +236,7 @@ image, img{
     line-height: 1.4 !important;
     font-size: 15px !important;
     margin: 0 0 5px 0 !important;
+    text-align: justify !important;
   }
   .productTabs.ui-tabs .ui-tabs-nav li{
     display: inline-block;
