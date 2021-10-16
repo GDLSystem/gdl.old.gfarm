@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Nop.Web.Framework.Models;
+using Nop.Web.Models.Common;
 using Nop.Web.Models.ShoppingCart;
 
 namespace Nop.Web.Models.Checkout
@@ -17,6 +18,11 @@ namespace Nop.Web.Models.Checkout
         public CheckoutPaymentInfoModel CheckoutPaymentInfo { get; set; }
         
         public ShoppingCartModel ShoppingCart { get; set; }
+        public IList<CheckoutPaymentMethodModel.PaymentMethodModel> PaymentMethods { get; set; }
     }
 
+    public record OnePageCheckoutSubmitCustom : CheckoutBillingAddressModel
+    {
+        public string PaymentMethod { get; set; }
+    }
 }

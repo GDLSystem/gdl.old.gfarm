@@ -57,7 +57,7 @@
                     @*     </div> *@
                     @* } *@
                     <div class="opc-address-grid">
-                        
+
                         <div class="opc-add-button">
                             <div asp-validation-summary="ModelOnly" class="message-error"></div>
                             <div class="enter-address">
@@ -75,30 +75,60 @@
                 @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CheckoutBillingAddressBottom })
             </div>
             <div class="opc-order-summary">
+                <div class="notification-board-covid">
+                    @T("Warning.Covid19")
+                </div>
                 <div class="payment-info">
                     <div class="section payment-info">
+                        <div class="title">
+                            <h1>@T("Checkout.SelectPaymentMethod")</h1>
+                        </div>
                         <div class="info">
-                            @await Component.InvokeAsync(Model.CheckoutPaymentInfo.PaymentViewComponentName)
+                            @* @await Component.InvokeAsync(Model.CheckoutPaymentInfo.PaymentViewComponentName) *@
+                            @if (Model.PaymentMethods.Count > 0)
+                            {
+                                <ul class="method-list" id="payment-method-block">
+                                    @for (var i = 0; i < Model.PaymentMethods.Count; i++)
+                                    {
+                                        var paymentMethod = Model.PaymentMethods[i];
+                                        var paymentMethodName = paymentMethod.Name;
+                                        if (!string.IsNullOrEmpty(paymentMethod.Fee))
+                                        {
+                                            paymentMethodName = T("Checkout.SelectPaymentMethod.MethodAndFee", paymentMethodName, paymentMethod.Fee).Text;
+                                        }
+                                        <li>
+                                            <div class="method-name">
+                                                @if (!string.IsNullOrEmpty(paymentMethod.LogoUrl))
+                                                {
+                                                    <div class="payment-logo">
+                                                        <label for="paymentmethod_@(i)">
+                                                            <img src="@paymentMethod.LogoUrl" alt="@paymentMethodName"/>
+                                                        </label>
+                                                    </div>
+                                                }
+                                                <div class="payment-details">
+                                                    <input id="paymentmethod_@(i)" type="radio" name="PaymentMethod" value="@(paymentMethod.PaymentMethodSystemName)" checked="@paymentMethod.Selected"/>
+                                                    <label for="paymentmethod_@(i)">@paymentMethodName</label>
+                                                    @if (!string.IsNullOrEmpty(paymentMethod.Description))
+                                                    {
+                                                        <div class="payment-description">@paymentMethod.Description</div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <div class="message-error">
+                                    @T("Checkout.NoPaymentMethods")
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
-                @* <div class="payment-info"> *@
-                @*     <div class="section payment-info"> *@
-                @*         <div class="info"> *@
-                @*             <table width="100%" cellspacing="0" cellpadding="0"> *@
-                @*                 <tbody> *@
-                @*                 <tr> *@
-                @*                     <td><p><span style="font-size:12pt"> *@
-                @*                             <strong><em>@T("ShoppingCart.Totals.Shipping.DirectToCustomer")</em></strong> *@
-                @*                         </span></p> *@
-                @*                     </td> *@
-                @*                 </tr> *@
-                @*                 </tbody> *@
-                @*                 </table> *@
-                @*              *@
-                @*         </div> *@
-                @*     </div> *@
-                @* </div> *@
+
                 @await Html.PartialAsync("_OrderSummary", Model.ShoppingCart)
             </div>
         </form>

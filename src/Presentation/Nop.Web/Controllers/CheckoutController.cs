@@ -1276,7 +1276,7 @@ namespace Nop.Web.Controllers
 
             model.ShoppingCart = new ShoppingCartModel();
             model.ShoppingCart = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(model.ShoppingCart, cart);
-
+            model.PaymentMethods =( await _checkoutModelFactory.PreparePaymentMethodModelAsync(cart, 0)).PaymentMethods;
             return View(model);
         }
 
@@ -1803,7 +1803,7 @@ namespace Nop.Web.Controllers
 
         [IgnoreAntiforgeryToken]
         /// <returns>A task that represents the asynchronous operation</returns>
-        public virtual async Task<IActionResult> OpcConfirmOrderCustom(CheckoutBillingAddressModel model, IFormCollection form)
+        public virtual async Task<IActionResult> OpcConfirmOrderCustom(OnePageCheckoutSubmitCustom model, IFormCollection form)
         {
             try
             {
@@ -1893,26 +1893,18 @@ namespace Nop.Web.Controllers
                     throw new Exception(await _localizationService.GetResourceAsync("Checkout.MinOrderPlacementInterval"));
 
                 //place order
-                var processPaymentRequest = HttpContext.Session.Get<ProcessPaymentRequest>("OrderPaymentInfo");
-                if (processPaymentRequest == null)
+                var processPaymentRequest = new ProcessPaymentRequest
                 {
-                    //Check whether payment workflow is required
-                    // if (await _orderProcessingService.IsPaymentWorkflowRequiredAsync(cart))
-                    // {
-                    //     throw new Exception("Payment information is not entered");
-                    // }
-
-                    processPaymentRequest = new ProcessPaymentRequest();
-                }
-
+                    PaymentMethodSystemName = model.PaymentMethod
+                };
                 _paymentService.GenerateOrderGuid(processPaymentRequest);
                 processPaymentRequest.StoreId = (await _storeContext.GetCurrentStoreAsync()).Id;
                 processPaymentRequest.CustomerId = (await _workContext.GetCurrentCustomerAsync()).Id;
                 
                 if (cart == null)
                     throw new ArgumentNullException(nameof(cart));
-                var paymentMethodModel = await  _checkoutModelFactory.PreparePaymentMethodModelAsync(cart,0);
-                processPaymentRequest.PaymentMethodSystemName = paymentMethodModel.PaymentMethods[0].PaymentMethodSystemName;
+                // var paymentMethodModel = await  _checkoutModelFactory.PreparePaymentMethodModelAsync(cart,0);
+                // processPaymentRequest.PaymentMethodSystemName = paymentMethodModel.PaymentMethods[0].PaymentMethodSystemName;
                 var placeOrderResult = await _orderProcessingService.PlaceOrderAsync(processPaymentRequest);
                 if (placeOrderResult.Success)
                 {
