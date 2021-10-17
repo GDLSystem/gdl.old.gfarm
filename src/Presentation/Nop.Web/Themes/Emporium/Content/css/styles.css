@@ -426,7 +426,7 @@ body {
 	max-width: 100%;
 	overflow-x: hidden; /* responsive navigation & filters scroll bug fix*/
 	background-color: #fff;
-	font: normal 12px 'Roboto', sans-serif;
+	font: normal 16px 'Roboto', sans-serif;
 	color: #000;
 	
 }
