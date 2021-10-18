@@ -243,12 +243,12 @@ ul.menu-left li a{
   right: 5px;
   width: 100px;
   position: fixed;
-  z-index: 100;
+  z-index: 100; 
 }
 .hotlinefix {
   position: fixed;
-  bottom: 50px;
-  left: 30px;
+  bottom: 215px;
+  right: 200px;
   z-index: 99;
 }
 
@@ -399,8 +399,9 @@ input[type="radio"] + label, input[type="checkbox"] + label{
   border-radius: 5px;
   width: 100%;
   margin: 15px 0 0 0;
-  display: block;
+  display: none;
   line-height: 20px;
+  overflow: hidden;
 }
 @media all and (max-width: 768px){
   .home-about-item{
@@ -437,5 +438,24 @@ input[type="radio"] + label, input[type="checkbox"] + label{
     float:left;
     margin-left: 0;
   }
+}
+.accordion-payment-description {
+  padding: 15px;
+  border: 1px solid #a3a3a3;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  width: 100%;
+  margin: 15px 0 0 0;
+  display: block;
+  line-height: 20px;
+  overflow: hidden;
+  color: #444;
+  cursor: pointer;
+  text-align: left;
+  outline: none;
+  transition: 0.4s;
+}
 
+.active, .accordion-payment-description:hover {
+  background-color: #ccc;
 }
