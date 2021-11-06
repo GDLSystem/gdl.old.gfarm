@@ -291,7 +291,7 @@ namespace Nop.Services.ExportImport
 
             var point = string.IsNullOrEmpty(extension) ? string.Empty : ".";
             var fileName = _fileProvider.FileExists(picturePath) ? $"{name}{point}{extension}" : string.Empty;
-            
+
             await _logger.ErrorAsync($"Insert picture failed (file name: {fileName})", ex);
         }
 
@@ -379,7 +379,7 @@ namespace Nop.Services.ExportImport
                                 trimByteCount);
 
                             var newValidatedImageHash = HashHelper.CreateHash(
-                                await _pictureService.ValidatePictureAsync(newPictureBinary, mimeType), 
+                                await _pictureService.ValidatePictureAsync(newPictureBinary, mimeType),
                                 IMAGE_HASH_ALGORITHM,
                                 trimByteCount);
 
@@ -389,8 +389,8 @@ namespace Nop.Services.ExportImport
 
                             pictureAlreadyExists = allPicturesHashes.Where(p => imagesIds.Contains(p.Key))
                                 .Select(p => p.Value)
-                                .Any(p => 
-                                    p.Equals(newImageHash, StringComparison.OrdinalIgnoreCase) || 
+                                .Any(p =>
+                                    p.Equals(newImageHash, StringComparison.OrdinalIgnoreCase) ||
                                     p.Equals(newValidatedImageHash, StringComparison.OrdinalIgnoreCase));
                         }
 
@@ -756,14 +756,15 @@ namespace Nop.Services.ExportImport
 
             var isNew = productSpecificationAttribute == null;
 
-            if (isNew) productSpecificationAttribute = new ProductSpecificationAttribute();
+            if (isNew)
+                productSpecificationAttribute = new ProductSpecificationAttribute();
 
             if (attributeTypeId != (int)SpecificationAttributeType.Option)
                 //we allow filtering only for "Option" attribute type
                 allowFiltering = false;
 
             //we don't allow CustomValue for "Option" attribute type
-            if (attributeTypeId == (int)SpecificationAttributeType.Option) 
+            if (attributeTypeId == (int)SpecificationAttributeType.Option)
                 customValue = null;
 
             productSpecificationAttribute.AttributeTypeId = attributeTypeId;
@@ -805,7 +806,7 @@ namespace Nop.Services.ExportImport
             {
                 var client = _httpClientFactory.CreateClient(NopHttpDefaults.DefaultHttpClient);
                 var fileData = await client.GetByteArrayAsync(urlString);
-                await using (var fs = new FileStream(filePath, FileMode.OpenOrCreate)) 
+                await using (var fs = new FileStream(filePath, FileMode.OpenOrCreate))
                     fs.Write(fileData, 0, fileData.Length);
 
                 downloadedFiles?.Add(filePath);
@@ -1592,9 +1593,15 @@ namespace Nop.Services.ExportImport
                 product.UpdatedOnUtc = DateTime.UtcNow;
 
                 if (isNew)
+                {
+                    product.OrderMinimumQuantity = 1;
+                    product.OrderMaximumQuantity = 10000;
                     await _productService.InsertProductAsync(product);
+                }
                 else
+                {
                     await _productService.UpdateProductAsync(product);
+                }
 
                 //quantity change history
                 if (isNew || previousWarehouseId == product.WarehouseId)
@@ -1650,7 +1657,7 @@ namespace Nop.Services.ExportImport
                         {
                             var rez = allCategories.ContainsKey(categoryKey) ? allCategories[categoryKey].Id : allCategories.Values.FirstOrDefault(c => c.Name == categoryKey.Key)?.Id;
 
-                            if (!rez.HasValue && int.TryParse(categoryKey.Key, out var id)) 
+                            if (!rez.HasValue && int.TryParse(categoryKey.Key, out var id))
                                 rez = id;
 
                             if (!rez.HasValue)
@@ -1677,9 +1684,9 @@ namespace Nop.Services.ExportImport
 
                     //delete product categories
                     var deletedProductCategories = await categories.Where(categoryId => !importedCategories.Contains(categoryId))
-                        .SelectAwait(async categoryId => (await _categoryService.GetProductCategoriesByProductIdAsync(product.Id, true)).FirstOrDefault(pc => pc.CategoryId == categoryId)).Where(pc=>pc != null).ToListAsync();
+                        .SelectAwait(async categoryId => (await _categoryService.GetProductCategoriesByProductIdAsync(product.Id, true)).FirstOrDefault(pc => pc.CategoryId == categoryId)).Where(pc => pc != null).ToListAsync();
 
-                    foreach (var deletedProductCategory in deletedProductCategories) 
+                    foreach (var deletedProductCategory in deletedProductCategories)
                         await _categoryService.DeleteProductCategoryAsync(deletedProductCategory);
                 }
 
@@ -1710,7 +1717,7 @@ namespace Nop.Services.ExportImport
                     //delete product manufacturers
                     var deletedProductsManufacturers = await manufacturers.Where(manufacturerId => !importedManufacturers.Contains(manufacturerId))
                         .SelectAwait(async manufacturerId => (await _manufacturerService.GetProductManufacturersByProductIdAsync(product.Id)).First(pc => pc.ManufacturerId == manufacturerId)).ToListAsync();
-                    foreach (var deletedProductManufacturer in deletedProductsManufacturers) 
+                    foreach (var deletedProductManufacturer in deletedProductsManufacturers)
                         await _manufacturerService.DeleteProductManufacturerAsync(deletedProductManufacturer);
                 }
 
@@ -2183,7 +2190,7 @@ namespace Nop.Services.ExportImport
 
         public class CategoryKey
         {
-        /// <returns>A task that represents the asynchronous operation</returns>
+            /// <returns>A task that represents the asynchronous operation</returns>
             public static async Task<CategoryKey> CreateCategoryKeyAsync(Category category, ICategoryService categoryService, IList<Category> allCategories, IStoreMappingService storeMappingService)
             {
                 var categoryKey = new CategoryKey(await categoryService.GetFormattedBreadCrumbAsync(category, allCategories), category.LimitedToStores ? (await storeMappingService.GetStoresIdsWithAccessAsync(category)).ToList() : new List<int>());

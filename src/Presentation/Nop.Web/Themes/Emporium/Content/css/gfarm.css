@@ -1,4 +1,7 @@
-﻿a {
+﻿.text-right {
+  text-align: right !important;
+}
+a {
   text-decoration: none;
 }
 .about-item{
