@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Web.Framework.Models;
 using Nop.Web.Framework.Mvc.ModelBinding;
@@ -86,6 +87,11 @@ namespace Nop.Web.Areas.Admin.Models.Topics
 
         [NopResourceDisplayName("Admin.ContentManagement.Topics.Fields.SeName")]
         public string SeName { get; set; }
+        
+        [UIHint("Picture")]
+        [NopResourceDisplayName("Admin.Catalog.Categories.Fields.SeoPicture")]
+        public int? SeoPictureId { get; set; }
+
 
         public IList<TopicLocalizedModel> Locales { get; set; }
 

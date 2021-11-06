@@ -7,7 +7,7 @@
 @inject CatalogSettings catalogSettings
 @inject SeoSettings seoSettings
 @inject ISettingService settingService
-@inject IStoreContext  storeContext
+@inject IStoreContext storeContext
 
 @{
     Layout = "_ColumnsOne";
@@ -58,7 +58,7 @@
     <div class="page-body">
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsTop, additionalData = Model })
         <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form">
-	    @if (seoSettings.MicrodataEnabled)
+            @if (seoSettings.MicrodataEnabled)
             {
                 @await Html.PartialAsync("_Microdata", Model)
             }
@@ -66,7 +66,7 @@
                 <div class="product-essential">
                     <div class="mobile-name-holder"></div>
                     <div class="mobile-prev-next-holder"></div>
-					@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsEssentialTop, additionalData = Model })
+                    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsEssentialTop, additionalData = Model })
                     @{
                         var cloudZoom = await Component.InvokeAsync("Widget", new { widgetZone = "sevenspikes_cloud_zoom", additionalData = Model });
                     }
@@ -125,7 +125,7 @@
                             @{
                                 var dataDictRental = new ViewDataDictionary(ViewData);
                                 dataDictRental.TemplateInfo.HtmlFieldPrefix = $"rental_{Model.Id}";
-                                 @await Html.PartialAsync("_RentalInfo", Model, dataDictRental)
+                                @await Html.PartialAsync("_RentalInfo", Model, dataDictRental)
                             }
 
                             @await Html.PartialAsync("_ProductTierPrices", Model.TierPrices)
@@ -165,8 +165,13 @@
                                 @await Html.PartialAsync("_DeliveryInfo", Model)
                             </div>
                         </div>
+
+                    </div>
+                    <div class="product-extra-info">
+                        @await Component.InvokeAsync("TopicBlockWithoutHeader", "ExtraProductInfo")
                     </div>
                     @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsEssentialBottom, additionalData = Model })
+
                 </div>
 
                 @{
@@ -206,11 +211,11 @@
                 @{
                     var relatedProducts = await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_related_carosuel" });
                     var alsoPurchased = await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_purchased_carosuel" });
-                
+
                     if (String.IsNullOrEmpty(await relatedProducts.RenderHtmlContentAsync()))
                     {
                         <!-- related products grid -->
-                        @await Component.InvokeAsync("RelatedProducts", new { productId = Model.Id })    
+                        @await Component.InvokeAsync("RelatedProducts", new { productId = Model.Id })
                     }
                     if (String.IsNullOrEmpty(await alsoPurchased.RenderHtmlContentAsync()))
                     {

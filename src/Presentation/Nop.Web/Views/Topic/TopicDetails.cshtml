@@ -21,6 +21,7 @@
         //meta
         Html.AddMetaDescriptionParts(Model.MetaDescription);
         Html.AddMetaKeywordParts(Model.MetaKeywords);
+        Html.AddHeadCustomParts("<meta property=\"og:image:url\" content=\"" + Model.MetaImageUrl + "\" />");
     }
 
     if (seoSettings.CanonicalUrlsEnabled)

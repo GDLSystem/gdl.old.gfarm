@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Nop.Core;
 using Nop.Core.Domain.Topics;
 using Nop.Services.Localization;
+using Nop.Services.Media;
 using Nop.Services.Security;
 using Nop.Services.Seo;
 using Nop.Services.Stores;
@@ -26,7 +27,7 @@ namespace Nop.Web.Factories
         private readonly ITopicService _topicService;
         private readonly ITopicTemplateService _topicTemplateService;
         private readonly IUrlRecordService _urlRecordService;
-
+        private readonly IPictureService _pictureService;
         #endregion
 
         #region Ctor
@@ -37,7 +38,7 @@ namespace Nop.Web.Factories
             IStoreMappingService storeMappingService,
             ITopicService topicService,
             ITopicTemplateService topicTemplateService,
-            IUrlRecordService urlRecordService)
+            IUrlRecordService urlRecordService, IPictureService pictureService)
         {
             _aclService = aclService;
             _localizationService = localizationService;
@@ -46,6 +47,7 @@ namespace Nop.Web.Factories
             _topicService = topicService;
             _topicTemplateService = topicTemplateService;
             _urlRecordService = urlRecordService;
+            _pictureService = pictureService;
         }
 
         #endregion
@@ -79,7 +81,15 @@ namespace Nop.Web.Factories
                 SeName = await _urlRecordService.GetSeNameAsync(topic),
                 TopicTemplateId = topic.TopicTemplateId
             };
+            
+            if (topic.SeoPictureId.HasValue)
+            { 
+                var picture = await _pictureService.GetPictureByIdAsync(topic.SeoPictureId.Value);
+                string fullSizeImageUrl;
 
+                (fullSizeImageUrl, _) = await _pictureService.GetPictureUrlAsync(picture);
+                model.MetaImageUrl = fullSizeImageUrl;
+            }
             return model;
         }
 
