@@ -300,7 +300,19 @@ namespace Nop.Services.ExportImport
         {
             foreach (var product in productPictureMetadata)
             {
-                foreach (var picturePath in new[] { product.Picture1Path, product.Picture2Path, product.Picture3Path })
+                foreach (var picturePath in new[]
+                {
+                    product.Picture1Path,
+                    product.Picture2Path,
+                    product.Picture3Path,
+                    product.Picture4Path,
+                    product.Picture5Path,
+                    product.Picture6Path,
+                    product.Picture7Path,
+                    product.Picture8Path,
+                    product.Picture9Path,
+                    product.Picture10Path
+                })
                 {
                     if (string.IsNullOrEmpty(picturePath))
                         continue;
@@ -362,7 +374,17 @@ namespace Nop.Services.ExportImport
 
             foreach (var product in productPictureMetadata)
             {
-                foreach (var picturePath in new[] { product.Picture1Path, product.Picture2Path, product.Picture3Path })
+                foreach (var picturePath in new[] {  product.Picture1Path,
+                    product.Picture2Path,
+                    product.Picture3Path,
+                    product.Picture4Path,
+                    product.Picture5Path,
+                    product.Picture6Path,
+                    product.Picture7Path,
+                    product.Picture8Path,
+                    product.Picture9Path,
+                    product.Picture10Path
+                })
                 {
                     if (string.IsNullOrEmpty(picturePath))
                         continue;
@@ -1752,6 +1774,13 @@ namespace Nop.Services.ExportImport
                 var picture1 = await DownloadFileAsync(metadata.Manager.GetProperty("Picture1")?.StringValue, downloadedFiles);
                 var picture2 = await DownloadFileAsync(metadata.Manager.GetProperty("Picture2")?.StringValue, downloadedFiles);
                 var picture3 = await DownloadFileAsync(metadata.Manager.GetProperty("Picture3")?.StringValue, downloadedFiles);
+                var picture4 = await DownloadFileAsync(metadata.Manager.GetProperty("Picture4")?.StringValue, downloadedFiles);
+                var picture5 = await DownloadFileAsync(metadata.Manager.GetProperty("Picture5")?.StringValue, downloadedFiles);
+                var picture6 = await DownloadFileAsync(metadata.Manager.GetProperty("Picture6")?.StringValue, downloadedFiles);
+                var picture7 = await DownloadFileAsync(metadata.Manager.GetProperty("Picture7")?.StringValue, downloadedFiles);
+                var picture8 = await DownloadFileAsync(metadata.Manager.GetProperty("Picture8")?.StringValue, downloadedFiles);
+                var picture9 = await DownloadFileAsync(metadata.Manager.GetProperty("Picture9")?.StringValue, downloadedFiles);
+                var picture10 = await DownloadFileAsync(metadata.Manager.GetProperty("Picture10")?.StringValue, downloadedFiles);
 
                 productPictureMetadata.Add(new ProductPictureMetadata
                 {
@@ -1759,6 +1788,13 @@ namespace Nop.Services.ExportImport
                     Picture1Path = picture1,
                     Picture2Path = picture2,
                     Picture3Path = picture3,
+                    Picture4Path = picture4,
+                    Picture5Path = picture5,
+                    Picture6Path = picture6,
+                    Picture7Path = picture7,
+                    Picture8Path = picture8,
+                    Picture9Path = picture9,
+                    Picture10Path = picture10,
                     IsNew = isNew
                 });
 
@@ -2184,6 +2220,13 @@ namespace Nop.Services.ExportImport
             public string Picture2Path { get; set; }
 
             public string Picture3Path { get; set; }
+            public string Picture4Path { get; set; }
+            public string Picture5Path { get; set; }
+            public string Picture6Path { get; set; }
+            public string Picture7Path { get; set; }
+            public string Picture8Path { get; set; }
+            public string Picture9Path { get; set; }
+            public string Picture10Path { get; set; }
 
             public bool IsNew { get; set; }
         }

@@ -1415,7 +1415,14 @@ namespace Nop.Services.ExportImport
                 new PropertyByName<Product>("LimitedToStores", GetLimitedToStoresAsync, await IgnoreExportLimitedToStoreAsync()),
                 new PropertyByName<Product>("Picture1", async p => await GetPictureAsync(p, 0)),
                 new PropertyByName<Product>("Picture2", async p => await GetPictureAsync(p, 1)),
-                new PropertyByName<Product>("Picture3", async p => await GetPictureAsync(p, 2))
+                new PropertyByName<Product>("Picture3", async p => await GetPictureAsync(p, 2)),
+                new PropertyByName<Product>("Picture4", async p => await GetPictureAsync(p, 3)),
+                new PropertyByName<Product>("Picture5", async p => await GetPictureAsync(p, 4)),
+                new PropertyByName<Product>("Picture6", async p => await GetPictureAsync(p, 5)),
+                new PropertyByName<Product>("Picture7", async p => await GetPictureAsync(p, 6)),
+                new PropertyByName<Product>("Picture8", async p => await GetPictureAsync(p, 7)),
+                new PropertyByName<Product>("Picture9", async p => await GetPictureAsync(p, 8)),
+                new PropertyByName<Product>("Picture10", async p => await GetPictureAsync(p, 9)),
             };
 
             var productList = products.ToList();
