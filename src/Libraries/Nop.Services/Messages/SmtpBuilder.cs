@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Security;
+using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using MailKit.Net.Smtp;
@@ -53,13 +54,15 @@ namespace Nop.Services.Messages
             var client = new SmtpClient {
                 ServerCertificateValidationCallback = ValidateServerCertificate
             };
+// Allow SSLv3.0 and all versions of TLS
+            client.SslProtocols = SslProtocols.Ssl3 | SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12 | SslProtocols.Tls13;
 
             try
             {
                 await client.ConnectAsync(
                     emailAccount.Host,
                     emailAccount.Port,
-                    emailAccount.EnableSsl ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTlsWhenAvailable);
+                    emailAccount.EnableSsl ? SecureSocketOptions.Auto : SecureSocketOptions.StartTlsWhenAvailable);
 
                 if (emailAccount.UseDefaultCredentials)
                 {
